@@ -1,0 +1,5 @@
+message Packet {
+  required int32 fn = 1;
+  required bytes data = 2;
+  required int64 crc = 3;
+}

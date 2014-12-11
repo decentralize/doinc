@@ -23,6 +23,14 @@ if [ ! -d "LuaState-master" ]; then
   unzip LuaState-master.zip
 fi
 
-rm -f LuaJIT-2.0.3.tar.gz LuaState-master.zip
+if [ ! -d "protobuf-2.6.0" ]; then
+  wget https://protobuf.googlecode.com/svn/rc/protobuf-2.6.0.tar.gz
+  tar -zxf protobuf-2.6.0.tar.gz
+  pushd protobuf-2.6.0
+  ./configure && make
+  popd
+fi
+
+rm -f LuaJIT-2.0.3.tar.gz LuaState-master.zip protobuf-2.6.0.tar.gz
 
 
