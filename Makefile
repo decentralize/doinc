@@ -5,12 +5,12 @@ LUA_CXXFLAGS = -Ilib/LuaJIT-2.0.3/src -Ilib/LuaState-master/include
 LUA_LFLAGS = -Llib/LuaJIT-2.0.3/src -lluajit -ldl
 
 PROTOBUF_CXXFLAGS = -Ilib/protobuf-2.6.0/src
-PROTOBUF_LFLAGS = -Llib/protobuf-2.6.0/src -lprotobuf
+PROTOBUF_LFLAGS = -Llib/protobuf-2.6.0/src/.libs -lprotobuf
 
 BOOST_LFLAGS = -lboost_system -pthread
 
 CXX_OBJECTS = $(CXX_SOURCES:.cc=.o)
-CXXFLAGS = -g -Wall -Werror -Wfatal-errors -std=c++11 $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS)
+CXXFLAGS = -g -Wall -std=c++11 $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS)
 LFLAGS = -static $(BOOST_LFLAGS) $(PROTOBUF_LFLAGS) $(LUA_LFLAGS)
 
 all: dist/client dist/nameserver dist/localworker
