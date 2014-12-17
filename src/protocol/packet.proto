@@ -1,5 +1,16 @@
+package protocol;
+
+option optimize_for = LITE_RUNTIME;
+
 message Packet {
-  required int32 fn = 1;
+  enum FunctionCode {
+    ERROR = 0;
+    OK = 1;
+    NS_REGISTER = 2;
+    NS_REQUEST_NODE = 3;
+  }
+
+  required FunctionCode code = 1;
   required bytes data = 2;
   required int64 crc = 3;
 }

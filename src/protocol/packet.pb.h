@@ -20,11 +20,12 @@
 #endif
 
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/message.h>
+#include <google/protobuf/message_lite.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
-#include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
+
+namespace protocol {
 
 // Internal implementation detail -- do not call these.
 void  protobuf_AddDesc_packet_2eproto();
@@ -33,9 +34,20 @@ void protobuf_ShutdownFile_packet_2eproto();
 
 class Packet;
 
+enum Packet_FunctionCode {
+  Packet_FunctionCode_ERROR = 0,
+  Packet_FunctionCode_OK = 1,
+  Packet_FunctionCode_NS_REGISTER = 2,
+  Packet_FunctionCode_NS_REQUEST_NODE = 3
+};
+bool Packet_FunctionCode_IsValid(int value);
+const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MIN = Packet_FunctionCode_ERROR;
+const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_NS_REQUEST_NODE;
+const int Packet_FunctionCode_FunctionCode_ARRAYSIZE = Packet_FunctionCode_FunctionCode_MAX + 1;
+
 // ===================================================================
 
-class Packet : public ::google::protobuf::Message {
+class Packet : public ::google::protobuf::MessageLite {
  public:
   Packet();
   virtual ~Packet();
@@ -47,24 +59,32 @@ class Packet : public ::google::protobuf::Message {
     return *this;
   }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+  inline const ::std::string& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+  inline ::std::string* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
-  static const ::google::protobuf::Descriptor* descriptor();
   static const Packet& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const Packet* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
 
   void Swap(Packet* other);
 
   // implements Message ----------------------------------------------
 
   Packet* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
   void CopyFrom(const Packet& from);
   void MergeFrom(const Packet& from);
   void Clear();
@@ -75,25 +95,40 @@ class Packet : public ::google::protobuf::Message {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  void DiscardUnknownFields();
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::google::protobuf::Metadata GetMetadata() const;
+  ::std::string GetTypeName() const;
 
   // nested types ----------------------------------------------------
 
+  typedef Packet_FunctionCode FunctionCode;
+  static const FunctionCode ERROR = Packet_FunctionCode_ERROR;
+  static const FunctionCode OK = Packet_FunctionCode_OK;
+  static const FunctionCode NS_REGISTER = Packet_FunctionCode_NS_REGISTER;
+  static const FunctionCode NS_REQUEST_NODE = Packet_FunctionCode_NS_REQUEST_NODE;
+  static inline bool FunctionCode_IsValid(int value) {
+    return Packet_FunctionCode_IsValid(value);
+  }
+  static const FunctionCode FunctionCode_MIN =
+    Packet_FunctionCode_FunctionCode_MIN;
+  static const FunctionCode FunctionCode_MAX =
+    Packet_FunctionCode_FunctionCode_MAX;
+  static const int FunctionCode_ARRAYSIZE =
+    Packet_FunctionCode_FunctionCode_ARRAYSIZE;
+
   // accessors -------------------------------------------------------
 
-  // required int32 fn = 1;
-  inline bool has_fn() const;
-  inline void clear_fn();
-  static const int kFnFieldNumber = 1;
-  inline ::google::protobuf::int32 fn() const;
-  inline void set_fn(::google::protobuf::int32 value);
+  // required .protocol.Packet.FunctionCode code = 1;
+  inline bool has_code() const;
+  inline void clear_code();
+  static const int kCodeFieldNumber = 1;
+  inline ::protocol::Packet_FunctionCode code() const;
+  inline void set_code(::protocol::Packet_FunctionCode value);
 
   // required bytes data = 2;
   inline bool has_data() const;
@@ -114,23 +149,27 @@ class Packet : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 crc() const;
   inline void set_crc(::google::protobuf::int64 value);
 
-  // @@protoc_insertion_point(class_scope:Packet)
+  // @@protoc_insertion_point(class_scope:protocol.Packet)
  private:
-  inline void set_has_fn();
-  inline void clear_has_fn();
+  inline void set_has_code();
+  inline void clear_has_code();
   inline void set_has_data();
   inline void clear_has_data();
   inline void set_has_crc();
   inline void clear_has_crc();
 
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  ::std::string _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* data_;
   ::google::protobuf::int64 crc_;
-  ::google::protobuf::int32 fn_;
+  int code_;
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_packet_2eproto_impl();
+  #else
   friend void  protobuf_AddDesc_packet_2eproto();
+  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -144,28 +183,29 @@ class Packet : public ::google::protobuf::Message {
 
 // Packet
 
-// required int32 fn = 1;
-inline bool Packet::has_fn() const {
+// required .protocol.Packet.FunctionCode code = 1;
+inline bool Packet::has_code() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Packet::set_has_fn() {
+inline void Packet::set_has_code() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Packet::clear_has_fn() {
+inline void Packet::clear_has_code() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Packet::clear_fn() {
-  fn_ = 0;
-  clear_has_fn();
+inline void Packet::clear_code() {
+  code_ = 0;
+  clear_has_code();
 }
-inline ::google::protobuf::int32 Packet::fn() const {
-  // @@protoc_insertion_point(field_get:Packet.fn)
-  return fn_;
+inline ::protocol::Packet_FunctionCode Packet::code() const {
+  // @@protoc_insertion_point(field_get:protocol.Packet.code)
+  return static_cast< ::protocol::Packet_FunctionCode >(code_);
 }
-inline void Packet::set_fn(::google::protobuf::int32 value) {
-  set_has_fn();
-  fn_ = value;
-  // @@protoc_insertion_point(field_set:Packet.fn)
+inline void Packet::set_code(::protocol::Packet_FunctionCode value) {
+  assert(::protocol::Packet_FunctionCode_IsValid(value));
+  set_has_code();
+  code_ = value;
+  // @@protoc_insertion_point(field_set:protocol.Packet.code)
 }
 
 // required bytes data = 2;
@@ -185,7 +225,7 @@ inline void Packet::clear_data() {
   clear_has_data();
 }
 inline const ::std::string& Packet::data() const {
-  // @@protoc_insertion_point(field_get:Packet.data)
+  // @@protoc_insertion_point(field_get:protocol.Packet.data)
   return *data_;
 }
 inline void Packet::set_data(const ::std::string& value) {
@@ -194,7 +234,7 @@ inline void Packet::set_data(const ::std::string& value) {
     data_ = new ::std::string;
   }
   data_->assign(value);
-  // @@protoc_insertion_point(field_set:Packet.data)
+  // @@protoc_insertion_point(field_set:protocol.Packet.data)
 }
 inline void Packet::set_data(const char* value) {
   set_has_data();
@@ -202,7 +242,7 @@ inline void Packet::set_data(const char* value) {
     data_ = new ::std::string;
   }
   data_->assign(value);
-  // @@protoc_insertion_point(field_set_char:Packet.data)
+  // @@protoc_insertion_point(field_set_char:protocol.Packet.data)
 }
 inline void Packet::set_data(const void* value, size_t size) {
   set_has_data();
@@ -210,14 +250,14 @@ inline void Packet::set_data(const void* value, size_t size) {
     data_ = new ::std::string;
   }
   data_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:Packet.data)
+  // @@protoc_insertion_point(field_set_pointer:protocol.Packet.data)
 }
 inline ::std::string* Packet::mutable_data() {
   set_has_data();
   if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     data_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:Packet.data)
+  // @@protoc_insertion_point(field_mutable:protocol.Packet.data)
   return data_;
 }
 inline ::std::string* Packet::release_data() {
@@ -241,7 +281,7 @@ inline void Packet::set_allocated_data(::std::string* data) {
     clear_has_data();
     data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:Packet.data)
+  // @@protoc_insertion_point(field_set_allocated:protocol.Packet.data)
 }
 
 // required int64 crc = 3;
@@ -259,26 +299,19 @@ inline void Packet::clear_crc() {
   clear_has_crc();
 }
 inline ::google::protobuf::int64 Packet::crc() const {
-  // @@protoc_insertion_point(field_get:Packet.crc)
+  // @@protoc_insertion_point(field_get:protocol.Packet.crc)
   return crc_;
 }
 inline void Packet::set_crc(::google::protobuf::int64 value) {
   set_has_crc();
   crc_ = value;
-  // @@protoc_insertion_point(field_set:Packet.crc)
+  // @@protoc_insertion_point(field_set:protocol.Packet.crc)
 }
 
 
 // @@protoc_insertion_point(namespace_scope)
 
-#ifndef SWIG
-namespace google {
-namespace protobuf {
-
-
-}  // namespace google
-}  // namespace protobuf
-#endif  // SWIG
+}  // namespace protocol
 
 // @@protoc_insertion_point(global_scope)
 
