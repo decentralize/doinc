@@ -7,79 +7,41 @@
 -- contributed by Mike Pall
 -- with optimizations by Markus J. Q. (MarkusQ) Roberts
 
-local width = tonumber(arg and arg[1]) or 100
-local height, wscale = width, 2/width
+local width = 1000
+local height = 1000
 
-local m, limit2 = 50, 4.0
-local write, char = io.write, string.char
+local max_iter = 10000
+local max_diverge = 4
 
-local h2 = math.floor(height/2)
-local hm = height - h2*2
-local top_half = {}
+local points = {}
 
-for y=0,h2+hm do
-    local Ci = 2*y / height - 1
-    local line = {""}
-    for xb=0,width-1,8 do
-        local bits = 0
-        local xbb = xb+7
-        for x=xb,xbb < width and xbb or width-1 do
-            bits = bits + bits
-            local Zr, Zi, Zrq, Ziq = 0.0, 0.0, 0.0, 0.0
-            local Cr = x * wscale - 1.5
-            local Zri = Zr*Zi
-            for i=1,m/5 do
-                Zr = Zrq - Ziq + Cr
-                Zi = Zri + Zri + Ci
-                Zri = Zr*Zi
-
-                Zr = Zr*Zr - Zi*Zi + Cr
-                Zi = 2*Zri +         Ci
-                Zri = Zr*Zi
-
-                Zr = Zr*Zr - Zi*Zi + Cr
-                Zi = 2*Zri +         Ci
-                Zri = Zr*Zi
-
-                Zr = Zr*Zr - Zi*Zi + Cr
-                Zi = 2*Zri +         Ci
-                Zri = Zr*Zi
-
-                Zr = Zr*Zr - Zi*Zi + Cr
-                Zi = 2*Zri +         Ci
-                Zri = Zr*Zi
-
-                Zrq = Zr*Zr
-                Ziq = Zi*Zi
-                Zri = Zr*Zi
-                if Zrq + Ziq > limit2 then
-                    bits = bits + 1
-                    break
-                    end
-                -- if i == 1 then
-                --    local ar,ai       = 1-4*Zr,-4*Zi
-                --    local a_r         = math.sqrt(ar*ar+ai*ai)
-                --    local k           = math.sqrt(2)/2
-                --    local br,bi2      = math.sqrt(a_r+ar)*k,(a_r-ar)/2
-                --    if (br+1)*(br+1) + bi2 < 1 then
-                --        break
-                --        end
-                --    end
-                end
-            end
-        for x=width,xbb do
-            bits = bits + bits + 1
-            end
-        table.insert(line,char(255-bits))
-        end
-    line = table.concat(line)
-    table.insert(top_half,line)
+function mandelbrot(cx,cy, max_iter, max)
+    local x,y,xtemp,ytemp,squaresum,iter
+    squaresum = 0
+    x = 0
+    y = 0
+    iter = 0
+    while (squaresum <= max) and (iter < max_iter)  do
+      xtemp = x * x - y * y + cx
+      ytemp = 2 * x * y + cy
+      x = xtemp
+      y = ytemp
+      iter = iter + 1
+      squaresum = x * x + y * y
     end
-
-write("P4\n", width, " ", height, "\n")
-for y=1,h2+hm do
-    write(top_half[y])
+    local result = 0
+    if (iter < max_iter) then
+        result = iter
     end
-for y=h2,1,-1 do
-    write(top_half[y])
-   end
+    return result
+end
+
+for row=0,height-1 do
+    for col=0,width-1 do
+        x = 2.0*col/width - 1.0
+        y = 2.0*row/height - 1.0
+        points[row*width+col] = mandelbrot(x, y, max_iter, max_diverge)
+    end
+end
+
+print("Done!");
