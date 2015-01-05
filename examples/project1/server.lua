@@ -37,6 +37,8 @@ function mandelbrot(cx,cy, max_iter, max)
 end
 
 for row=0,height-1 do
+    io.write('\r', tostring(row/height*100), "% ")
+    io.flush()
     for col=0,width-1 do
         x = 2.0*col/width - 1.0
         y = 2.0*row/height - 1.0
