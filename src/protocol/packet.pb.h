@@ -20,9 +20,11 @@
 #endif
 
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/message_lite.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/generated_enum_reflection.h>
+#include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
 namespace protocol {
@@ -45,9 +47,19 @@ const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MIN = Packet_Function
 const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_NS_REQUEST_NODE;
 const int Packet_FunctionCode_FunctionCode_ARRAYSIZE = Packet_FunctionCode_FunctionCode_MAX + 1;
 
+const ::google::protobuf::EnumDescriptor* Packet_FunctionCode_descriptor();
+inline const ::std::string& Packet_FunctionCode_Name(Packet_FunctionCode value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Packet_FunctionCode_descriptor(), value);
+}
+inline bool Packet_FunctionCode_Parse(
+    const ::std::string& name, Packet_FunctionCode* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Packet_FunctionCode>(
+    Packet_FunctionCode_descriptor(), name, value);
+}
 // ===================================================================
 
-class Packet : public ::google::protobuf::MessageLite {
+class Packet : public ::google::protobuf::Message {
  public:
   Packet();
   virtual ~Packet();
@@ -59,32 +71,24 @@ class Packet : public ::google::protobuf::MessageLite {
     return *this;
   }
 
-  inline const ::std::string& unknown_fields() const {
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::std::string* mutable_unknown_fields() {
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
+  static const ::google::protobuf::Descriptor* descriptor();
   static const Packet& default_instance();
-
-  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
-  // Returns the internal default instance pointer. This function can
-  // return NULL thus should not be used by the user. This is intended
-  // for Protobuf internal code. Please use default_instance() declared
-  // above instead.
-  static inline const Packet* internal_default_instance() {
-    return default_instance_;
-  }
-  #endif
 
   void Swap(Packet* other);
 
   // implements Message ----------------------------------------------
 
   Packet* New() const;
-  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
   void CopyFrom(const Packet& from);
   void MergeFrom(const Packet& from);
   void Clear();
@@ -95,14 +99,14 @@ class Packet : public ::google::protobuf::MessageLite {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  void DiscardUnknownFields();
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::std::string GetTypeName() const;
+  ::google::protobuf::Metadata GetMetadata() const;
 
   // nested types ----------------------------------------------------
 
@@ -120,6 +124,17 @@ class Packet : public ::google::protobuf::MessageLite {
     Packet_FunctionCode_FunctionCode_MAX;
   static const int FunctionCode_ARRAYSIZE =
     Packet_FunctionCode_FunctionCode_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  FunctionCode_descriptor() {
+    return Packet_FunctionCode_descriptor();
+  }
+  static inline const ::std::string& FunctionCode_Name(FunctionCode value) {
+    return Packet_FunctionCode_Name(value);
+  }
+  static inline bool FunctionCode_Parse(const ::std::string& name,
+      FunctionCode* value) {
+    return Packet_FunctionCode_Parse(name, value);
+  }
 
   // accessors -------------------------------------------------------
 
@@ -158,18 +173,14 @@ class Packet : public ::google::protobuf::MessageLite {
   inline void set_has_crc();
   inline void clear_has_crc();
 
-  ::std::string _unknown_fields_;
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* data_;
   ::google::protobuf::int64 crc_;
   int code_;
-  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
-  friend void  protobuf_AddDesc_packet_2eproto_impl();
-  #else
   friend void  protobuf_AddDesc_packet_2eproto();
-  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -312,6 +323,20 @@ inline void Packet::set_crc(::google::protobuf::int64 value) {
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
+
+#ifndef SWIG
+namespace google {
+namespace protobuf {
+
+template <> struct is_proto_enum< ::protocol::Packet_FunctionCode> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::protocol::Packet_FunctionCode>() {
+  return ::protocol::Packet_FunctionCode_descriptor();
+}
+
+}  // namespace google
+}  // namespace protobuf
+#endif  // SWIG
 
 // @@protoc_insertion_point(global_scope)
 

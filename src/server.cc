@@ -13,8 +13,9 @@ int main(int argc, char* argv[]) {
 
     //udp::endpoint receiver_endpoint = udp::endpoint(address::from_string("130.239.40.31"), 9000);
     udp::endpoint receiver_endpoint = udp::endpoint(udp::v4(), 9000);
-
     udp::socket socket(io_service);
+
+    std::cout << "Opening connection to nameserver" << std::endl;
     socket.open(udp::v4());
 
     protocol::Packet out_p;
@@ -24,9 +25,13 @@ int main(int argc, char* argv[]) {
     out_p.set_crc(0);
     out_p.SerializeToString(&packet_string);
 
+    std::cout << "Sending NS handshake" << std::endl;
+
     boost::array<char, 1024> send_buf;
     std::copy(std::begin(packet_string), std::end(packet_string), std::begin(send_buf));
     socket.send_to(boost::asio::buffer(send_buf), receiver_endpoint);
+
+    std::cout << "Receiving NS handshake response" << std::endl;
 
     boost::array<char, 1024> recv_buf;
     udp::endpoint sender_endpoint;

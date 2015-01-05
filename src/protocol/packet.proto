@@ -1,6 +1,6 @@
 package protocol;
 
-option optimize_for = LITE_RUNTIME;
+//option optimize_for = LITE_RUNTIME;
 
 message Packet {
   enum FunctionCode {

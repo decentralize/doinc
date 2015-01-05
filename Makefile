@@ -1,4 +1,5 @@
 CXX_SOURCES = \
+	src/utils.cc \
 	src/protocol/packet.pb.cc
 
 LUA_CXXFLAGS = -Ilib/LuaJIT-2.0.3/src -Ilib/LuaState-master/include
