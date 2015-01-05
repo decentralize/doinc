@@ -8,6 +8,7 @@ message Packet {
     OK = 1;
     NS_REGISTER = 2;
     NS_REQUEST_NODE = 3;
+    NODE = 4;
   }
 
   required FunctionCode code = 1;

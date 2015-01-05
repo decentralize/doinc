@@ -82,11 +82,11 @@ void protobuf_AddDesc_packet_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014packet.proto\022\010protocol\"\231\001\n\006Packet\022+\n\004c"
+    "\n\014packet.proto\022\010protocol\"\243\001\n\006Packet\022+\n\004c"
     "ode\030\001 \002(\0162\035.protocol.Packet.FunctionCode"
-    "\022\014\n\004data\030\002 \002(\014\022\013\n\003crc\030\003 \002(\003\"G\n\014FunctionC"
+    "\022\014\n\004data\030\002 \002(\014\022\013\n\003crc\030\003 \002(\003\"Q\n\014FunctionC"
     "ode\022\t\n\005ERROR\020\000\022\006\n\002OK\020\001\022\017\n\013NS_REGISTER\020\002\022"
-    "\023\n\017NS_REQUEST_NODE\020\003", 180);
+    "\023\n\017NS_REQUEST_NODE\020\003\022\010\n\004NODE\020\004", 190);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "packet.proto", &protobuf_RegisterTypes);
   Packet::default_instance_ = new Packet();
@@ -113,6 +113,7 @@ bool Packet_FunctionCode_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+    case 4:
       return true;
     default:
       return false;
@@ -124,6 +125,7 @@ const Packet_FunctionCode Packet::ERROR;
 const Packet_FunctionCode Packet::OK;
 const Packet_FunctionCode Packet::NS_REGISTER;
 const Packet_FunctionCode Packet::NS_REQUEST_NODE;
+const Packet_FunctionCode Packet::NODE;
 const Packet_FunctionCode Packet::FunctionCode_MIN;
 const Packet_FunctionCode Packet::FunctionCode_MAX;
 const int Packet::FunctionCode_ARRAYSIZE;

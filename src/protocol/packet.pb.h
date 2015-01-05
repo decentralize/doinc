@@ -40,11 +40,12 @@ enum Packet_FunctionCode {
   Packet_FunctionCode_ERROR = 0,
   Packet_FunctionCode_OK = 1,
   Packet_FunctionCode_NS_REGISTER = 2,
-  Packet_FunctionCode_NS_REQUEST_NODE = 3
+  Packet_FunctionCode_NS_REQUEST_NODE = 3,
+  Packet_FunctionCode_NODE = 4
 };
 bool Packet_FunctionCode_IsValid(int value);
 const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MIN = Packet_FunctionCode_ERROR;
-const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_NS_REQUEST_NODE;
+const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_NODE;
 const int Packet_FunctionCode_FunctionCode_ARRAYSIZE = Packet_FunctionCode_FunctionCode_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Packet_FunctionCode_descriptor();
@@ -115,6 +116,7 @@ class Packet : public ::google::protobuf::Message {
   static const FunctionCode OK = Packet_FunctionCode_OK;
   static const FunctionCode NS_REGISTER = Packet_FunctionCode_NS_REGISTER;
   static const FunctionCode NS_REQUEST_NODE = Packet_FunctionCode_NS_REQUEST_NODE;
+  static const FunctionCode NODE = Packet_FunctionCode_NODE;
   static inline bool FunctionCode_IsValid(int value) {
     return Packet_FunctionCode_IsValid(value);
   }
