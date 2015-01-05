@@ -32,7 +32,6 @@ public:
     if (error || bytes_recvd <= 1) {
       std::cerr << "Receive error: " << error << std::endl;
       std::cerr << "Received bytes: " << bytes_recvd << std::endl;
-      return;
       queue_receive_from();
       return;
     }
