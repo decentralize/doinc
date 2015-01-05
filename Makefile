@@ -13,12 +13,12 @@ CXX_OBJECTS = $(CXX_SOURCES:.cc=.o)
 CXXFLAGS = -g -Wall -Werror -Wfatal-errors -Wno-sign-compare -std=c++11 $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS)
 LFLAGS = -static $(BOOST_LFLAGS) $(PROTOBUF_LFLAGS) $(LUA_LFLAGS)
 
-all: dist/client dist/nameserver dist/localworker
+all: dist/server dist/nameserver dist/localworker
 
 dist/nameserver: src/nameserver.cc $(CXX_OBJECTS)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LFLAGS)
 
-dist/client: src/client.cc $(CXX_OBJECTS)
+dist/server: src/server.cc $(CXX_OBJECTS)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LFLAGS)
 
 dist/localworker: src/localworker.cc $(CXX_OBJECTS)
