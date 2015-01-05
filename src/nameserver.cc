@@ -51,17 +51,17 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     // NS_REGISTER = 2
     if(in_p.code() == protocol::Packet::NS_REGISTER){
 
-    // Update endpoint/timestamp for particular sender_endpoint
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-    endpoints[sender_endpoint] = ms;
+      // Update endpoint/timestamp for particular sender_endpoint
+      std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+      endpoints[sender_endpoint] = ms;
 
-    std::cout << "This sender: " << sender_endpoint << std::endl;
-    std::cout << "Was updated with this timestamp: " << ms.count() << std::endl;
+      std::cout << "This sender: " << sender_endpoint << std::endl;
+      std::cout << "Was updated with this timestamp: " << ms.count() << std::endl;
 
-    // Should not send endpoint data, fix later.
-    stream << sender_endpoint;
-    out_p.set_data(stream.str());
-    out_p.set_code(protocol::Packet::OK);
+      // Should not send endpoint data, fix later.
+      stream << sender_endpoint;
+      out_p.set_data(stream.str());
+      out_p.set_code(protocol::Packet::OK);
 
     // NS_REQUEST_NODE = 3
     } else if (in_p.code() == protocol::Packet::NS_REQUEST_NODE){
