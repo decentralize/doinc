@@ -12,6 +12,6 @@ message Packet {
   }
 
   required FunctionCode code = 1;
-  required bytes data = 2;
+  optional bytes data = 2;
   required int64 crc = 3;
 }

@@ -26,9 +26,13 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     sock.receive_from(
         boost::asio::buffer(data, 1024), sender_endpoint);
 
+    std::cout << std::endl;
+
     protocol::Packet in_p;
     in_p.ParseFromString(data);
     std::cout << "Got packet: " << in_p.code() << std::endl;
+    std::cout << "CRC: " << in_p.crc() << std::endl;
+    std::cout << "Calculated CRC: " << calculateCRC(in_p) << std::endl;
     std::cout << "From: " << sender_endpoint << std::endl;
 
     if(!checkCRC(in_p)) {

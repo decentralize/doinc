@@ -147,7 +147,7 @@ class Packet : public ::google::protobuf::Message {
   inline ::protocol::Packet_FunctionCode code() const;
   inline void set_code(::protocol::Packet_FunctionCode value);
 
-  // required bytes data = 2;
+  // optional bytes data = 2;
   inline bool has_data() const;
   inline void clear_data();
   static const int kDataFieldNumber = 2;
@@ -221,7 +221,7 @@ inline void Packet::set_code(::protocol::Packet_FunctionCode value) {
   // @@protoc_insertion_point(field_set:protocol.Packet.code)
 }
 
-// required bytes data = 2;
+// optional bytes data = 2;
 inline bool Packet::has_data() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }

@@ -84,7 +84,7 @@ void protobuf_AddDesc_packet_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014packet.proto\022\010protocol\"\243\001\n\006Packet\022+\n\004c"
     "ode\030\001 \002(\0162\035.protocol.Packet.FunctionCode"
-    "\022\014\n\004data\030\002 \002(\014\022\013\n\003crc\030\003 \002(\003\"Q\n\014FunctionC"
+    "\022\014\n\004data\030\002 \001(\014\022\013\n\003crc\030\003 \002(\003\"Q\n\014FunctionC"
     "ode\022\t\n\005ERROR\020\000\022\006\n\002OK\020\001\022\017\n\013NS_REGISTER\020\002\022"
     "\023\n\017NS_REQUEST_NODE\020\003\022\010\n\004NODE\020\004", 190);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
@@ -251,7 +251,7 @@ bool Packet::MergePartialFromCodedStream(
         break;
       }
 
-      // required bytes data = 2;
+      // optional bytes data = 2;
       case 2: {
         if (tag == 18) {
          parse_data:
@@ -310,7 +310,7 @@ void Packet::SerializeWithCachedSizes(
       1, this->code(), output);
   }
 
-  // required bytes data = 2;
+  // optional bytes data = 2;
   if (has_data()) {
     ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       2, this->data(), output);
@@ -337,7 +337,7 @@ void Packet::SerializeWithCachedSizes(
       1, this->code(), target);
   }
 
-  // required bytes data = 2;
+  // optional bytes data = 2;
   if (has_data()) {
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
@@ -367,7 +367,7 @@ int Packet::ByteSize() const {
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->code());
     }
 
-    // required bytes data = 2;
+    // optional bytes data = 2;
     if (has_data()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::BytesSize(
@@ -434,7 +434,7 @@ void Packet::CopyFrom(const Packet& from) {
 }
 
 bool Packet::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00000005) != 0x00000005) return false;
 
   return true;
 }
