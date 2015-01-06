@@ -3,6 +3,11 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/algorithm/string.hpp>
+#include <rsa.h>
+#include <osrng.h>
+#include <files.h>
+#include <cryptlib.h>
 
 #include "protocol/packet.pb.h"
 #include "utils.h"
@@ -101,7 +106,89 @@ private:
   char data_[max_length];
 };
 
+
+void Save(const std::string& filename, const CryptoPP::BufferedTransformation& bt) {
+    CryptoPP::FileSink file(filename.c_str());
+
+    bt.CopyTo(file);
+    file.MessageEnd();
+}
+
+void SavePrivateKey(const std::string& filename, const CryptoPP::RSA::PrivateKey& key) {
+
+    CryptoPP::ByteQueue queue;
+    key.Save(queue);
+
+    Save(filename, queue);
+}
+
+void SavePublicKey(const std::string& filename, const CryptoPP::RSA::PublicKey& key) {
+
+    CryptoPP::ByteQueue queue;
+    key.Save(queue);
+
+    Save(filename, queue);
+}
+
+void Load(const std::string& filename, CryptoPP::BufferedTransformation& bt)
+{
+  
+  CryptoPP::FileSource file(filename.c_str(), true);
+
+  file.TransferTo(bt);
+  bt.MessageEnd();
+}
+
+void LoadPrivateKey(const std::string& filename, CryptoPP::RSA::PrivateKey& key) {
+  
+  CryptoPP::ByteQueue queue;
+
+  Load(filename, queue);
+  key.Load(queue);  
+}
+
+void LoadPublicKey(const std::string& filename, CryptoPP::RSA::PublicKey& key) {
+
+  CryptoPP::ByteQueue queue;
+
+  Load(filename, queue);
+  key.Load(queue);  
+}
+
 int main(int argc, char* argv[]) {
+  using namespace CryptoPP;
+
+  AutoSeededRandomPool rnd_pool;
+  RSA::PrivateKey priv_key;
+  RSA::PublicKey pub_key;
+
+  // TODO: Change to PEM if you be wanting human readable keys
+  std::cout << "Generate new keypair? Y/N" << std::endl;
+  std::string input = "";
+  std::cin >> input;
+  if(boost::iequals(input, "Y")){
+
+    priv_key.GenerateRandomWithKeySize(rnd_pool, 3072);
+    pub_key.AssignFrom(priv_key);
+
+    SavePrivateKey("priv.key", priv_key);
+    SavePublicKey("pub.key", pub_key);
+  } else {
+
+    LoadPrivateKey("priv.key", priv_key);
+    LoadPublicKey("pub.key", pub_key);
+  }
+
+  if(!priv_key.Validate(rnd_pool, 3)){
+    std::cerr << "Invalid private key!" << std::endl;
+    return 1;
+  } else if (!pub_key.Validate(rnd_pool, 3)){
+    std::cerr << "Invalid public key!" << std::endl;
+    return 1;
+  }
+
+
+
   try {
     boost::asio::io_service io_service;
     server s(io_service);

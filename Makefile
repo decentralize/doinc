@@ -17,7 +17,8 @@ CRYPTOPP_LFLAGS = -Llib/cryptopp562 -lcryptopp
 BOOST_LFLAGS = -lboost_system -pthread
 
 CXX_OBJECTS = $(CXX_SOURCES:.cc=.o)
-CXXFLAGS = -g -Wall -Werror -Wfatal-errors -Wno-sign-compare -std=c++11 $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS) $(CRYPTOPP_CXXFLAGS)
+CXXFLAGS = -g -Wall -Werror -Wfatal-errors -Wno-sign-compare -Wno-unused-variable -Wno-unused-function \
+  -std=c++11 $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS) $(CRYPTOPP_CXXFLAGS)
 LFLAGS = -static $(BOOST_LFLAGS) $(PROTOBUF_LFLAGS) $(LUA_LFLAGS) $(CRYPTOPP_LFLAGS) -ldl
 
 all: dist/server dist/nameserver dist/localworker
