@@ -35,6 +35,7 @@ if [ ! -d "asd" ]; then
   wget http://www.cryptopp.com/cryptopp562.zip
   unzip cryptopp562.zip -d cryptopp562
   pushd cryptopp562
+  make
   popd
 fi
 
