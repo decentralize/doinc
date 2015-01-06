@@ -31,7 +31,7 @@ if [ ! -d "protobuf-2.6.0" ]; then
   popd
 fi
 
-if [ ! -d "asd" ]; then
+if [ ! -d "cryptopp562" ]; then
   wget http://www.cryptopp.com/cryptopp562.zip
   unzip cryptopp562.zip -d cryptopp562
   pushd cryptopp562
