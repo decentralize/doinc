@@ -31,6 +31,11 @@ if [ ! -d "protobuf-2.6.0" ]; then
   popd
 fi
 
-rm -f LuaJIT-2.0.3.tar.gz LuaState-master.zip protobuf-2.6.0.tar.gz
+if [ ! -d "asd" ]; then
+  wget http://www.cryptopp.com/cryptopp562.zip
+  unzip cryptopp562.zip -d cryptopp562
+  pushd cryptopp562
+  popd
+fi
 
-
+rm -f LuaJIT-2.0.3.tar.gz LuaState-master.zip protobuf-2.6.0.tar.gz cryptopp562.zip
