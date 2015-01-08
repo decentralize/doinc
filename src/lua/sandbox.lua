@@ -1,5 +1,4 @@
 sandbox_env = {
-  work = work,
   ipairs = ipairs,
   next = next,
   pairs = pairs,
@@ -29,37 +28,25 @@ sandbox_env = {
   os = { clock = os.clock, difftime = os.difftime, time = os.time },
 }
 
-
 function run_sandboxed(f)
   setfenv(f, sandbox_env)
   return pcall(f)
 end
 
--- local my_data = {this = {"is",4,"test"}}
--- local encoded = mp.pack(my_data)
--- local offset,decoded = mp.unpack(encoded)
--- assert(offset == #encoded)
--- print(encoded)
--- io.write("# code:\n", blueprint, "\n")
--- io.write("# work:\n", work, "\n")
+local bp_function = nil
 
-is_error = false
-error = nil
-result = "none"
-
-local f = loadstring(blueprint)
-if f == nil then
-  is_error = true
-  error = "Syntax error in blueprint"
-  return
+function load_blueprint(bp_string)
+  local f = loadstring(bp_string)
+  if f == nil then
+    return "Syntax error in blueprint"
+  end
+  e,bp_function = run_sandboxed(f)
+  if e == false or bp_function == nil then
+    return "Invalid blueprint - no work function returned"
+  end
+  return ''
 end
 
-local ret, e = run_sandboxed(f)
-if ret then
-  -- TODO: convert table to JSON
-  result = tostring(e)
-else
-  -- TODO: fuck shit up
-  is_error = true
-  error = tostring(e)
+function perform_work(work)
+  return tostring(bp_function(work))
 end

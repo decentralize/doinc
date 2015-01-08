@@ -8,4 +8,4 @@ function fastfib(n)
   return fibs[n]
 end
 
-return fastfib(work)
+return fastfib
