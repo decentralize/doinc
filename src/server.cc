@@ -4,19 +4,40 @@
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/algorithm/string.hpp>
+using boost::asio::ip::udp;
+
 #include <rsa.h>
-#include <osrng.h>
+using CryptoPP::RSA;
+
 #include <files.h>
+using CryptoPP::FileSink;
+using CryptoPP::FileSource;
+
 #include <cryptlib.h>
-#include <sha.h>
+using CryptoPP::BufferedTransformation;
+using CryptoPP::ByteQueue;
+using CryptoPP::StringSink;
+using CryptoPP::StringSource;
+
 #include <base64.h>
-#include <pssr.h>
+using CryptoPP::Base64Encoder;
+
 #include <secblock.h>
+using CryptoPP::SecByteBlock;
+
+#include <osrng.h>
+using CryptoPP::AutoSeededRandomPool;
+
+#include <sha.h>
+using CryptoPP::SHA;
+using CryptoPP::SHA1;
+
+#include <pssr.h>
+using CryptoPP::RSASS;
+using CryptoPP::PSS;
 
 #include "protocol/packet.pb.h"
 #include "utils.h"
-
-using boost::asio::ip::udp;
 
 class server {
 public:
@@ -111,56 +132,55 @@ private:
 };
 
 
-void Save(const std::string& filename, const CryptoPP::BufferedTransformation& bt) {
-    CryptoPP::FileSink file(filename.c_str());
+void Save(const std::string& filename, const BufferedTransformation& bt) {
+    FileSink file(filename.c_str());
 
     bt.CopyTo(file);
     file.MessageEnd();
 }
 
-void SavePrivateKey(const std::string& filename, const CryptoPP::RSA::PrivateKey& key) {
+void SavePrivateKey(const std::string& filename, const RSA::PrivateKey& key) {
 
-    CryptoPP::ByteQueue queue;
+    ByteQueue queue;
     key.Save(queue);
 
     Save(filename, queue);
 }
 
-void SavePublicKey(const std::string& filename, const CryptoPP::RSA::PublicKey& key) {
+void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
 
-    CryptoPP::ByteQueue queue;
+    ByteQueue queue;
     key.Save(queue);
 
     Save(filename, queue);
 }
 
-void Load(const std::string& filename, CryptoPP::BufferedTransformation& bt)
+void Load(const std::string& filename, BufferedTransformation& bt)
 {
   
-  CryptoPP::FileSource file(filename.c_str(), true);
+  FileSource file(filename.c_str(), true);
 
   file.TransferTo(bt);
   bt.MessageEnd();
 }
 
-void LoadPrivateKey(const std::string& filename, CryptoPP::RSA::PrivateKey& key) {
+void LoadPrivateKey(const std::string& filename, RSA::PrivateKey& key) {
   
-  CryptoPP::ByteQueue queue;
+  ByteQueue queue;
 
   Load(filename, queue);
   key.Load(queue);  
 }
 
-void LoadPublicKey(const std::string& filename, CryptoPP::RSA::PublicKey& key) {
+void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
 
-  CryptoPP::ByteQueue queue;
+  ByteQueue queue;
 
   Load(filename, queue);
   key.Load(queue);  
 }
 
 int main(int argc, char* argv[]) {
-  using namespace CryptoPP;
 
   AutoSeededRandomPool rnd_pool;
   RSA::PrivateKey priv_key;
@@ -194,17 +214,15 @@ int main(int argc, char* argv[]) {
 
   // Hash pubkey for distribution
   std::string toHash;
-  CryptoPP::StringSink sink(toHash);
-
+  StringSink sink(toHash);
   pub_key.Save(sink);
 
-
-  byte thumbprint[CryptoPP::SHA::DIGESTSIZE];
-  CryptoPP::SHA().CalculateDigest(thumbprint, (byte const*) toHash.data(), toHash.length());
+  byte thumbprint[SHA::DIGESTSIZE];
+  SHA().CalculateDigest(thumbprint, (const byte*) toHash.data(), toHash.length());
   
   // Create string version of the thumbprint
   std::string thumbprint_string;
-  CryptoPP::StringSource source(thumbprint, CryptoPP::SHA::DIGESTSIZE, true, new CryptoPP::Base64Encoder(new CryptoPP::StringSink(thumbprint_string)));
+  StringSource source(thumbprint, SHA::DIGESTSIZE, true, new Base64Encoder(new StringSink(thumbprint_string)));
   std::cout << "Thumbprint: " << thumbprint_string << std::endl;
 
 
@@ -215,7 +233,7 @@ int main(int argc, char* argv[]) {
   RSASS<PSS, SHA1>::Signer signer(priv_key);
 
   size_t sig_length = signer.MaxSignatureLength();
-  CryptoPP::SecByteBlock signature(sig_length);
+  SecByteBlock signature(sig_length);
 
   sig_length = signer.SignMessage(rnd_pool, (const byte*) test_message.data(), test_message.length(), signature);
   signature.resize(sig_length);
