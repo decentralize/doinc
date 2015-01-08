@@ -1,59 +1,88 @@
 #include <iostream>
-#include <fstream>
-#include <string>
-using namespace std;
+using std::cout;
+using std::cerr;
+using std::endl;
 
-#include <cassert>
+#include <fstream>
+using std::ifstream;
+using std::istreambuf_iterator;
+
+#include <string>
+using std::string;
+
+#include <stdexcept>
+using std::runtime_error;
 
 #include <LuaState.h>
 
 #include "lua/sandbox.h"
 #include "lua/msgpack.h"
+#define SRC(x) string(x, x + sizeof x / sizeof x[0])
 
-string runSandboxed(string code) {
+class LuaSandbox {
+private:
   lua::State state;
 
-  try {
-    // Load msgpack and sandbox
+public:
+  class BlueprintException : public runtime_error {
+  public:
+    BlueprintException(string s): runtime_error(s) {}
+  };
+  class WorkException : public runtime_error {
+  public:
+    WorkException(const char* s): WorkException(string(s)) {}
+    WorkException(string s): runtime_error(s) {}
+  };
+
+  LuaSandbox(string code):
+      state() {
+
+    // Load hardcoded msgpack
     state.set("malloc", &malloc);
     state.set("realloc", &realloc);
     state.set("free", &free);
-    state.doString(string(reinterpret_cast<const char*>(src_lua_msgpack_lua)));
-    state.doString(string(reinterpret_cast<const char*>(src_lua_sandbox_lua)));
-  } catch(const lua::RuntimeError& e) {
-    cerr << "RuntimeError: " << e.what() << endl;
-    return string();
-  } catch(const lua::LoadError& e) {
-    cerr << "LoadError: " << e.what() << endl;
-    return string();
+    state.doString(SRC(src_lua_msgpack_lua));
+
+    // Load sandbox: defines load_blueprint and perform_work
+    state.doString(SRC(src_lua_sandbox_lua));
+
+    // Load blueprint code into sandbox - gets JIT compiled immediately
+    bool success;
+    string load_error;
+    lua::tie(success, load_error) = state["load_blueprint"](code);
+    if(!success) {
+      throw(BlueprintException(load_error));
+    }
   }
 
-  cout << "=== State ready, running ===" << endl;
-
-  string lr = state["load_blueprint"](code);
-  if(lr.length() > 0) {
-    cerr << "Fail: " << lr << endl;
-    return string();
+  string PerformWork(string work) {
+    bool success;
+    string msg;
+    lua::tie(success, msg) = state["perform_work"](work);
+    if(success) {
+      return msg;
+    } else {
+      throw(WorkException(msg));
+    }
   }
-
-  int works[] = {1, 2, 3, 4, 5, 10, 50, 100, 150, 200, 250, 300};
-  for (int &work : works) {
-    string result = state["perform_work"](work);
-    cout << "work(" << work << "): " << result << endl;
-  }
-
-  return string();
-}
+};
 
 int main(int argc, char** argv) {
   for(int i = 1; i < argc; i++) {
     auto filename = argv[i];
-    cout << "=== Running file: " << filename << " ===" << endl;
     ifstream ifs(filename);
-    string content( (istreambuf_iterator<char>(ifs) ),
-                       (istreambuf_iterator<char>()    ) );
-    string ret = runSandboxed(content);
-    cout << ret << endl << endl;
+    string code((istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>()));
+
+    try {
+      LuaSandbox sb(code);
+      cout << "=== Running file: " << filename << " ===" << endl;
+      string ret = sb.PerformWork("10");
+      cout << "Success: " << ret << endl << endl;
+    } catch(const LuaSandbox::BlueprintException &e) {
+      cerr << "Invalid blueprint: " << e.what() << endl;
+    } catch(const LuaSandbox::WorkException &e) {
+      cerr << "Work failed: " << e.what() << endl;
+    }
   }
 
   return 0;

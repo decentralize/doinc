@@ -6,4 +6,8 @@ function slowfib(n)
   return slowfib(n-1) + slowfib(n-2)
 end
 
-return slowfib
+function wrapper(n)
+  return slowfib(tonumber(n))
+end
+
+return wrapper

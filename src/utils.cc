@@ -2,6 +2,8 @@
 #include "protocol/packet.pb.h"
 
 #include <string>
+using std::string;
+
 #include <google/protobuf/stubs/common.h>
 #include <boost/crc.hpp>
 
@@ -20,10 +22,10 @@ bool checkCRC(protocol::Packet &p) {
 }
 
 protocol::Packet createPacket(protocol::Packet::FunctionCode code) {
-  return createPacket(code, std::string());
+  return createPacket(code, string());
 }
 
-protocol::Packet createPacket(protocol::Packet::FunctionCode code, std::string payload) {
+protocol::Packet createPacket(protocol::Packet::FunctionCode code, string payload) {
   protocol::Packet p;
   p.set_code(code);
   p.set_data(payload);

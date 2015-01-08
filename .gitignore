@@ -2,3 +2,4 @@
 dist/*
 lib
 *.key
+src/lua/*.h

@@ -8,4 +8,8 @@ function fastfib(n)
   return fibs[n]
 end
 
-return fastfib
+function wrapper(n)
+  return fastfib(tonumber(n))
+end
+
+return wrapper

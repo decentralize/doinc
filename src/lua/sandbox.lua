@@ -1,3 +1,5 @@
+local bit = require('bit')
+
 sandbox_env = {
   ipairs = ipairs,
   next = next,
@@ -7,6 +9,7 @@ sandbox_env = {
   tostring = tostring,
   type = type,
   unpack = unpack,
+  -- TODO: Decide whether corouting could be used to DOS a machine
   coroutine = { create = coroutine.create, resume = coroutine.resume,
       running = coroutine.running, status = coroutine.status,
       wrap = coroutine.wrap },
@@ -25,7 +28,18 @@ sandbox_env = {
       min = math.min, modf = math.modf, pi = math.pi, pow = math.pow,
       rad = math.rad, random = math.random, sin = math.sin, sinh = math.sinh,
       sqrt = math.sqrt, tan = math.tan, tanh = math.tanh },
-  os = { clock = os.clock, difftime = os.difftime, time = os.time }
+  os = { clock = os.clock, difftime = os.difftime, time = os.time },
+
+
+  -- Libraries
+
+  -- MsgPack
+  mp = { pack = mp.pack, unpack = mp.unpack },
+
+  -- LuaJit Lua BitOp
+  bit = { tobit = bit.tobit, tohex = bit.tohex, bnot = bit.bnot, band = bit.band,
+      bor = bit.bor, bxor = bit.bxor, lshift = bit.lshift, rshift = bit.rshift,
+      arshift = bit.arshift, rol = bit.rol, ror = bit.ror, bswap = bit.bswap},
 }
 
 function run_sandboxed(f)
@@ -33,23 +47,26 @@ function run_sandboxed(f)
   return pcall(f)
 end
 
-local bp_function = nil
+local blueprint = nil
 
-function load_blueprint(bp_string)
-  local f = loadstring(bp_string)
-  if f == nil then
-    return "Syntax error in blueprint"
+function load_blueprint(code)
+  local f = loadstring(code)
+  e,f = run_sandboxed(f)
+  if not e then
+    local error_msg = f
+    return false, error_msg
   end
-  e,bp_function = run_sandboxed(f)
-  if e == false or bp_function == nil then
-    return "Invalid blueprint - no work function returned"
-  end
-  return ''
+  blueprint = f
+  return true, ''
 end
 
 function perform_work(work)
   -- print('Starting work...')
-  return tostring(bp_function(work))
+  local e,res = pcall(blueprint, work)
+  if not e then
+    return false, res
+  end
+  return true, tostring(res)
 end
 
 -- function bc(func)
