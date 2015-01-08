@@ -25,7 +25,7 @@ sandbox_env = {
       min = math.min, modf = math.modf, pi = math.pi, pow = math.pow,
       rad = math.rad, random = math.random, sin = math.sin, sinh = math.sinh,
       sqrt = math.sqrt, tan = math.tan, tanh = math.tanh },
-  os = { clock = os.clock, difftime = os.difftime, time = os.time },
+  os = { clock = os.clock, difftime = os.difftime, time = os.time }
 }
 
 function run_sandboxed(f)
@@ -48,5 +48,15 @@ function load_blueprint(bp_string)
 end
 
 function perform_work(work)
+  -- print('Starting work...')
   return tostring(bp_function(work))
 end
+
+-- function bc(func)
+--   print('Function compiled: ', func)
+-- end
+-- jit.attach(bc, 'bc')
+-- function trace(what, tr, func, pc, otr, oex)
+--   print('Trace: ',  what)
+-- end
+-- jit.attach(trace, 'trace')
