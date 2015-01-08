@@ -1,5 +1,17 @@
 #include <cstdlib>
+using std::malloc;
+using std::free;
+using std::calloc;
+
 #include <iostream>
+using std::cout;
+using std::cerr;
+using std::cin;
+using std::endl;
+
+#include <fstream>
+using std::ifstream;
+
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -157,7 +169,7 @@ void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
 
 void LoadFromFile(const std::string& filename, BufferedTransformation& bt)
 {
-  
+
   FileSource file(filename.c_str(), true);
 
   file.TransferTo(bt);
@@ -165,11 +177,11 @@ void LoadFromFile(const std::string& filename, BufferedTransformation& bt)
 }
 
 void LoadPrivateKey(const std::string& filename, RSA::PrivateKey& key) {
-  
+
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
-  key.Load(queue);  
+  key.Load(queue);
 }
 
 void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
@@ -177,7 +189,7 @@ void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
-  key.Load(queue);  
+  key.Load(queue);
 }
 
 int main(int argc, char* argv[]) {
@@ -187,28 +199,32 @@ int main(int argc, char* argv[]) {
   RSA::PublicKey pub_key;
 
   // TODO: Change to PEM if you be wanting human readable keys
-  std::cout << "Generate new keypair? Y/N" << std::endl;
-  std::string input = "";
-  std::cin >> input;
-  if(boost::iequals(input, "Y")){
+  {
+    ifstream pk_test("pub.key");
+    if (!pk_test.good()) {
+      std::cout << "No keypair found (priv.key, pub.key)\n" <<
+        "Generate new keypair? Y/N" << std::endl;
+      std::string input;
+      std::cin >> input;
+      if(boost::iequals(input, "Y")){
+        priv_key.GenerateRandomWithKeySize(rnd_pool, 3072);
+        pub_key.AssignFrom(priv_key);
 
-    priv_key.GenerateRandomWithKeySize(rnd_pool, 3072);
-    pub_key.AssignFrom(priv_key);
-
-    SavePrivateKey("priv.key", priv_key);
-    SavePublicKey("pub.key", pub_key);
-  } else {
-
-    std::cout << "Loading priv.key and pub.key" << std::endl;
-    LoadPrivateKey("priv.key", priv_key);
-    LoadPublicKey("pub.key", pub_key);
+        SavePrivateKey("priv.key", priv_key);
+        SavePublicKey("pub.key", pub_key);
+      }
+    } else {
+      LoadPrivateKey("priv.key", priv_key);
+      LoadPublicKey("pub.key", pub_key);
+      std::cout << "Loaded symmetric key pair" << std::endl;
+    }
   }
 
   if(!priv_key.Validate(rnd_pool, 3)){
-    std::cerr << "Invalid private key!" << std::endl;
+    std::cerr << "Panic: Invalid private key!" << std::endl;
     return 1;
   } else if (!pub_key.Validate(rnd_pool, 3)){
-    std::cerr << "Invalid public key!" << std::endl;
+    std::cerr << "Panic: Invalid public key!" << std::endl;
     return 1;
   }
 
@@ -216,14 +232,13 @@ int main(int argc, char* argv[]) {
   std::string toHash;
   StringSink sink(toHash);
   pub_key.Save(sink);
-
   byte thumbprint[SHA::DIGESTSIZE];
   SHA().CalculateDigest(thumbprint, (const byte*) toHash.data(), toHash.length());
-  
+
   // Create string version of the thumbprint
   std::string thumbprint_string;
   StringSource source(thumbprint, SHA::DIGESTSIZE, true, new Base64Encoder(new StringSink(thumbprint_string)));
-  std::cout << "Thumbprint: " << thumbprint_string << std::endl;
+  std::cout << "Project Key (give this to workers): " << thumbprint_string << std::endl;
 
 
   // TEST: Signing and verification of messages with RSA
