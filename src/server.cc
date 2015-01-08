@@ -132,7 +132,7 @@ private:
 };
 
 
-void Save(const std::string& filename, const BufferedTransformation& bt) {
+void SaveToFile(const std::string& filename, const BufferedTransformation& bt) {
     FileSink file(filename.c_str());
 
     bt.CopyTo(file);
@@ -144,7 +144,7 @@ void SavePrivateKey(const std::string& filename, const RSA::PrivateKey& key) {
     ByteQueue queue;
     key.Save(queue);
 
-    Save(filename, queue);
+    SaveToFile(filename, queue);
 }
 
 void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
@@ -152,10 +152,10 @@ void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
     ByteQueue queue;
     key.Save(queue);
 
-    Save(filename, queue);
+    SaveToFile(filename, queue);
 }
 
-void Load(const std::string& filename, BufferedTransformation& bt)
+void LoadFromFile(const std::string& filename, BufferedTransformation& bt)
 {
   
   FileSource file(filename.c_str(), true);
@@ -168,7 +168,7 @@ void LoadPrivateKey(const std::string& filename, RSA::PrivateKey& key) {
   
   ByteQueue queue;
 
-  Load(filename, queue);
+  LoadFromFile(filename, queue);
   key.Load(queue);  
 }
 
@@ -176,7 +176,7 @@ void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
 
   ByteQueue queue;
 
-  Load(filename, queue);
+  LoadFromFile(filename, queue);
   key.Load(queue);  
 }
 
