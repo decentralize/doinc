@@ -1,48 +1,57 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+using namespace std;
 
-#include <LuaState.h>
 #include <cassert>
 
-using namespace std;
+#include <LuaState.h>
 
 #include "lua/sandbox.h"
 #include "lua/msgpack.h"
 
-std::string runSandboxed(std::string code) {
+string runSandboxed(string code) {
   lua::State state;
 
-  state.setString("blueprint", code);
-  state.setInt("work", 1200);
+  try {
+    // Load msgpack and sandbox
+    state.set("malloc", &malloc);
+    state.set("realloc", &realloc);
+    state.set("free", &free);
+    state.doString(string(reinterpret_cast<const char*>(src_lua_msgpack_lua)));
+    state.doString(string(reinterpret_cast<const char*>(src_lua_sandbox_lua)));
+  } catch(const lua::RuntimeError& e) {
+    cerr << "RuntimeError: " << e.what() << endl;
+    return string();
+  } catch(const lua::LoadError& e) {
+    cerr << "LoadError: " << e.what() << endl;
+    return string();
+  }
 
   cout << "=== State ready, running ===" << endl;
-  try {
-    state.set("malloc", &std::malloc);
-    state.set("realloc", &std::realloc);
-    state.set("free", &std::free);
-    state.doString(std::string(reinterpret_cast<const char*>(src_lua_msgpack_lua)));
-    state.doString(std::string(reinterpret_cast<const char*>(src_lua_sandbox_lua)));
-  } catch(const lua::RuntimeError& e) {
-    cerr << "Error: " << e.what() << endl;
-    return std::string();
+
+  string lr = state["load_blueprint"](code);
+  if(lr.length() > 0) {
+    cerr << "Fail: " << lr << endl;
+    return string();
   }
-  if(state["is_error"]) {
-    std::string e = state["error"];
-    cerr << "Error: " << e << endl;
-    return std::string();
+
+  int works[] = {1, 2, 3, 4, 5, 10, 50, 100, 150, 200, 250, 300};
+  for (int &work : works) {
+    string result = state["perform_work"](work);
+    cout << "work(" << work << "): " << result << endl;
   }
-  cout << "=== Ran successfully ===" << endl;
-  return state["result"];
+
+  return string();
 }
 
 int main(int argc, char** argv) {
   for(int i = 1; i < argc; i++) {
     auto filename = argv[i];
     cout << "=== Running file: " << filename << " ===" << endl;
-    std::ifstream ifs(filename);
-    std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                       (std::istreambuf_iterator<char>()    ) );
+    ifstream ifs(filename);
+    string content( (istreambuf_iterator<char>(ifs) ),
+                       (istreambuf_iterator<char>()    ) );
     string ret = runSandboxed(content);
     cout << ret << endl << endl;
   }
