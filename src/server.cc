@@ -10,6 +10,8 @@
 #include <cryptlib.h>
 #include <sha.h>
 #include <base64.h>
+#include <pssr.h>
+#include <secblock.h>
 
 #include "protocol/packet.pb.h"
 #include "utils.h"
@@ -206,7 +208,28 @@ int main(int argc, char* argv[]) {
   std::cout << "Thumbprint: " << thumbprint_string << std::endl;
 
 
-  // TODO: Signing and verification of messages with RSA
+  // TEST: Signing and verification of messages with RSA
+  std::string test_message = "This be test, lol";
+
+  // Sign
+  RSASS<PSS, SHA1>::Signer signer(priv_key);
+
+  size_t sig_length = signer.MaxSignatureLength();
+  CryptoPP::SecByteBlock signature(sig_length);
+
+  sig_length = signer.SignMessage(rnd_pool, (const byte*) test_message.data(), test_message.length(), signature);
+  signature.resize(sig_length);
+
+  // Verify
+  RSASS<PSS, SHA1>::Verifier verifier(pub_key);
+
+  bool result = verifier.VerifyMessage((const byte*)test_message.data(), test_message.length(), signature, signature.size());
+
+  if(result){
+    std::cout << "Message successfully verified!" << std::endl;
+  } else {
+    std::cout << "Unable to verify message, beware!" << std::endl;
+  }
 
   try {
     boost::asio::io_service io_service;
