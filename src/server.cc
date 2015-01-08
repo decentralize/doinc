@@ -8,6 +8,8 @@
 #include <osrng.h>
 #include <files.h>
 #include <cryptlib.h>
+#include <sha.h>
+#include <base64.h>
 
 #include "protocol/packet.pb.h"
 #include "utils.h"
@@ -175,6 +177,7 @@ int main(int argc, char* argv[]) {
     SavePublicKey("pub.key", pub_key);
   } else {
 
+    std::cout << "Loading priv.key and pub.key" << std::endl;
     LoadPrivateKey("priv.key", priv_key);
     LoadPublicKey("pub.key", pub_key);
   }
@@ -187,7 +190,23 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  // Hash pubkey for distribution
+  std::string toHash;
+  CryptoPP::StringSink sink(toHash);
 
+  pub_key.Save(sink);
+
+
+  byte thumbprint[CryptoPP::SHA::DIGESTSIZE];
+  CryptoPP::SHA().CalculateDigest(thumbprint, (byte const*) toHash.data(), toHash.length());
+  
+  // Create string version of the thumbprint
+  std::string thumbprint_string;
+  CryptoPP::StringSource source(thumbprint, CryptoPP::SHA::DIGESTSIZE, true, new CryptoPP::Base64Encoder(new CryptoPP::StringSink(thumbprint_string)));
+  std::cout << "Thumbprint: " << thumbprint_string << std::endl;
+
+
+  // TODO: Signing and verification of messages with RSA
 
   try {
     boost::asio::io_service io_service;
