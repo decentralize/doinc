@@ -145,31 +145,27 @@ private:
 
 
 void SaveToFile(const std::string& filename, const BufferedTransformation& bt) {
-    FileSink file(filename.c_str());
+  FileSink file(filename.c_str());
 
-    bt.CopyTo(file);
-    file.MessageEnd();
+  bt.CopyTo(file);
+  file.MessageEnd();
 }
 
 void SavePrivateKey(const std::string& filename, const RSA::PrivateKey& key) {
+  ByteQueue queue;
+  key.Save(queue);
 
-    ByteQueue queue;
-    key.Save(queue);
-
-    SaveToFile(filename, queue);
+  SaveToFile(filename, queue);
 }
 
 void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
+  ByteQueue queue;
+  key.Save(queue);
 
-    ByteQueue queue;
-    key.Save(queue);
-
-    SaveToFile(filename, queue);
+  SaveToFile(filename, queue);
 }
 
-void LoadFromFile(const std::string& filename, BufferedTransformation& bt)
-{
-
+void LoadFromFile(const std::string& filename, BufferedTransformation& bt) {
   FileSource file(filename.c_str(), true);
 
   file.TransferTo(bt);
@@ -177,7 +173,6 @@ void LoadFromFile(const std::string& filename, BufferedTransformation& bt)
 }
 
 void LoadPrivateKey(const std::string& filename, RSA::PrivateKey& key) {
-
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
@@ -185,7 +180,6 @@ void LoadPrivateKey(const std::string& filename, RSA::PrivateKey& key) {
 }
 
 void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
-
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
@@ -193,7 +187,6 @@ void LoadPublicKey(const std::string& filename, RSA::PublicKey& key) {
 }
 
 int main(int argc, char* argv[]) {
-
   AutoSeededRandomPool rnd_pool;
   RSA::PrivateKey priv_key;
   RSA::PublicKey pub_key;
@@ -239,7 +232,6 @@ int main(int argc, char* argv[]) {
   std::string thumbprint_string;
   StringSource source(thumbprint, SHA::DIGESTSIZE, true, new Base64Encoder(new StringSink(thumbprint_string)));
   std::cout << "Project Key (give this to workers): " << thumbprint_string << std::endl;
-
 
   // TEST: Signing and verification of messages with RSA
   std::string test_message = "This be test, lol";

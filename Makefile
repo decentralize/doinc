@@ -1,9 +1,11 @@
 CXX_SOURCES = \
 	src/utils.cc \
+	src/lua_runtime.cc \
 	src/protocol/packet.pb.cc
 OTHER_SOURCES = \
   src/lua/sandbox.h \
-  src/lua/msgpack.h
+  src/lua/msgpack.h \
+  src/lua/dkjson.h
 
 LUA_CXXFLAGS = -Ilib/LuaJIT-2.0.3/src -Ilib/LuaState-master/include
 LUA_LFLAGS = -Llib/LuaJIT-2.0.3/src -lluajit -ldl
@@ -39,6 +41,9 @@ src/protocol/packet.pb.cc: src/protocol/packet.proto
 
 src/lua/%.h: src/lua/%.lua
 	xxd -i $< $@
+
+src/lua_runtime.o: src/lua_runtime.cc $(OTHER_SOURCES)
+	$(CXX) $(LUA_CXXFLAGS) $(CXXFLAGS) -c $< -o $@
 
 **/%.o: **/%.cc Makefile
 	$(CXX) $(LUA_CXXFLAGS) $(CXXFLAGS) -c $< -o $@

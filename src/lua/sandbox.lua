@@ -1,6 +1,7 @@
 local bit = require('bit')
 
 sandbox_env = {
+  print = print,
   ipairs = ipairs,
   next = next,
   pairs = pairs,
@@ -35,6 +36,9 @@ sandbox_env = {
 
   -- MsgPack
   mp = { pack = mp.pack, unpack = mp.unpack },
+
+  -- dkjson
+  json = { encode = json.encode, decode = json.decode, version = json.version, null = json.null },
 
   -- LuaJit Lua BitOp
   bit = { tobit = bit.tobit, tohex = bit.tohex, bnot = bit.bnot, band = bit.band,
