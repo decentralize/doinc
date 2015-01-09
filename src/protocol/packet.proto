@@ -9,9 +9,17 @@ message Packet {
     NS_REGISTER = 2;
     NS_REQUEST_NODE = 3;
     NODE = 4;
+    NODE_LIST = 5;
+    GET_NODES = 6;
+    PING = 7;
+    PONG = 8;
   }
 
   required FunctionCode code = 1;
-  optional bytes data = 2;
-  required int64 crc = 3;
+  required int64 crc = 2;
+  optional bytes data = 3;
+}
+
+message NodeList {
+  repeated string data = 1;
 }
