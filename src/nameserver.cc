@@ -2,7 +2,7 @@
 #include <boost/asio.hpp>
 #include <cstdlib>
 #include <algorithm>
-#include <functional>
+#include <unordered_map>
 
 #include <chrono>
 using std::chrono::milliseconds;
@@ -14,6 +14,32 @@ using std::chrono::high_resolution_clock;
 
 using boost::asio::ip::udp;
 
+class Endpoint {
+private:
+  const udp::endpoint ep;
+
+public:
+  Endpoint(udp::endpoint e) : ep(e) {}
+  std::string tostring() const {
+    std::ostringstream oss;
+    oss << ep;
+    return oss.str();
+  }
+  bool operator==(const Endpoint e) const {
+    return tostring() == e.tostring();
+  }
+};
+
+namespace std {
+  template <>
+  struct hash<Endpoint> {
+    std::size_t operator()(const Endpoint& k) const {
+      return hash<string>()(k.tostring());
+    }
+  };
+}
+
+
 void nameserver(boost::asio::io_service& io_service, unsigned short port) {
   udp::socket sock(io_service, udp::endpoint(udp::v4(), port));
 
@@ -23,7 +49,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
   //   ask for node yields a random node from the list: DONE
   //   cleanup (remove old) is run when a client asks for a node, before one is selected: DONE, but not properly tested
 
-  std::map<const udp::endpoint, milliseconds, std::equal_to<udp::endpoint>> endpoints;
+  std::unordered_map<Endpoint, milliseconds> endpoints;
 
   for(;;) {
     char data[1024];
@@ -33,6 +59,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
         boost::asio::buffer(data, 1024), sender_endpoint);
 
     std::cout << std::endl;
+    std::cout << "ENTER: " << endpoints.size() << " endpoints" << std::endl;
 
     protocol::Packet in_p;
     in_p.ParseFromString(data);
@@ -60,7 +87,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
       // Update endpoint/timestamp for particular sender_endpoint
       std::cout << "Total nodes: " << endpoints.size() << std::endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
-      endpoints[udp::endpoint(sender_endpoint)] = timestamp;
+      endpoints[Endpoint(sender_endpoint)] = timestamp;
 
       std::cout << "This sender: " << sender_endpoint << std::endl;
       std::cout << "Was updated with this timestamp: " << timestamp.count() << std::endl;
@@ -78,7 +105,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
         out_p.set_code(protocol::Packet::ERROR);
       } else {
         // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
-        std::map<udp::endpoint, milliseconds>::iterator it;
+        std::unordered_map<Endpoint, milliseconds>::iterator it;
         for(it = endpoints.begin(); it != endpoints.end(); it++){
           milliseconds now_in_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
 
@@ -90,9 +117,9 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
         // If sender exists in nodelist, temporarily remove it so that
         // it's not returned to itself when a request is made
         bool exists_in_list = false;
-        if(endpoints.count(sender_endpoint) > 0){
+        if(endpoints.count(Endpoint(sender_endpoint)) > 0){
           exists_in_list = true;
-          endpoints.erase(sender_endpoint);
+          endpoints.erase(Endpoint(sender_endpoint));
         }
 
         // Make sure that if the sender endpoints was the only one
@@ -106,18 +133,17 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
           // Choose a random node from the list to send back
           it = endpoints.begin();
           std::advance(it, rand() % endpoints.size());
-          udp::endpoint random_endpoint = it->first;
+          Endpoint random_endpoint = it->first;
 
-          // If a node was temporarily removed, put it back with a new timestamp
-          if(exists_in_list){
-            milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
-            endpoints[udp::endpoint(sender_endpoint)] = timestamp;
-          }
-
-          std::cout << "Random endpoint: " << random_endpoint << std::endl;
-          stream << random_endpoint;
-          out_p.set_data(stream.str());
+          std::cout << "Random endpoint: " << random_endpoint.tostring() << std::endl;
+          out_p.set_data(random_endpoint.tostring());
           out_p.set_code(protocol::Packet::NODE);
+        }
+
+        // If a node was temporarily removed, put it back with a new timestamp
+        if(exists_in_list){
+          milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
+          endpoints[Endpoint(sender_endpoint)] = timestamp;
         }
       }
     }
@@ -134,6 +160,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     out_p.SerializeToString(&data_string);
 
     sock.send_to(boost::asio::buffer(data_string.data(), data_string.length()), sender_endpoint);
+    std::cout << "EXIT: " << endpoints.size() << " endpoints" << std::endl;
   }
 }
 
