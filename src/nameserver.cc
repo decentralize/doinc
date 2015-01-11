@@ -1,8 +1,13 @@
 #include <iostream>
-#include <boost/asio.hpp>
-#include <cstdlib>
-#include <algorithm>
+using std::cout;
+using std::cerr;
+using std::endl;
+
 #include <unordered_map>
+using std::unordered_map;
+
+#include <boost/asio.hpp>
+using boost::asio::ip::udp;
 
 #include <chrono>
 using std::chrono::milliseconds;
@@ -11,34 +16,7 @@ using std::chrono::high_resolution_clock;
 
 #include "protocol/packet.pb.h"
 #include "utils.h"
-
-using boost::asio::ip::udp;
-
-class Endpoint {
-private:
-  const udp::endpoint ep;
-
-public:
-  Endpoint(udp::endpoint e) : ep(e) {}
-  std::string tostring() const {
-    std::ostringstream oss;
-    oss << ep;
-    return oss.str();
-  }
-  bool operator==(const Endpoint e) const {
-    return tostring() == e.tostring();
-  }
-};
-
-namespace std {
-  template <>
-  struct hash<Endpoint> {
-    std::size_t operator()(const Endpoint& k) const {
-      return hash<string>()(k.tostring());
-    }
-  };
-}
-
+#include "endpoint.h"
 
 void nameserver(boost::asio::io_service& io_service, unsigned short port) {
   udp::socket sock(io_service, udp::endpoint(udp::v4(), port));
@@ -49,7 +27,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
   //   ask for node yields a random node from the list: DONE
   //   cleanup (remove old) is run when a client asks for a node, before one is selected: DONE, but not properly tested
 
-  std::unordered_map<Endpoint, milliseconds> endpoints;
+  unordered_map<Endpoint, milliseconds> endpoints;
 
   for(;;) {
     char data[1024];
@@ -58,18 +36,13 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     sock.receive_from(
         boost::asio::buffer(data, 1024), sender_endpoint);
 
-    std::cout << std::endl;
-    std::cout << "ENTER: " << endpoints.size() << " endpoints" << std::endl;
-
     protocol::Packet in_p;
     in_p.ParseFromString(data);
-    std::cout << "Got packet: " << in_p.code() << std::endl;
-    std::cout << "CRC: " << in_p.crc() << std::endl;
-    std::cout << "Calculated CRC: " << calculateCRC(in_p) << std::endl;
-    std::cout << "From: " << sender_endpoint << std::endl;
+    cout << "Got packet: " << in_p.code();
+    cout << ", from: " << sender_endpoint << endl;
 
     if(!checkCRC(in_p)) {
-      std::cerr << "CRC mismatch!" << std::endl;
+      std::cerr << "CRC mismatch!" << endl;
       exit(1);
       return;
     }
@@ -85,27 +58,31 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     if(in_p.code() == protocol::Packet::NS_REGISTER){
 
       // Update endpoint/timestamp for particular sender_endpoint
-      std::cout << "Total nodes: " << endpoints.size() << std::endl;
+      cout << "Total nodes: " << endpoints.size() << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
       endpoints[Endpoint(sender_endpoint)] = timestamp;
 
-      std::cout << "This sender: " << sender_endpoint << std::endl;
-      std::cout << "Was updated with this timestamp: " << timestamp.count() << std::endl;
-      std::cout << "Total nodes: " << endpoints.size() << std::endl;
+      cout << "This sender: " << sender_endpoint << endl;
+      cout << "Was updated with this timestamp: " << timestamp.count() << endl;
+      cout << "Total nodes: " << endpoints.size() << endl;
 
-      stream << sender_endpoint;
-      out_p.set_data(stream.str());
+      protocol::Node node;
+      node.set_addr(sender_endpoint.address().to_string());
+      node.set_port(sender_endpoint.port());
+      std::string node_string;
+      node.SerializeToString(&node_string);
+
+      out_p.set_data(node_string);
       out_p.set_code(protocol::Packet::OK);
 
     // NS_REQUEST_NODE = 3
     } else if (in_p.code() == protocol::Packet::NS_REQUEST_NODE){
       if(endpoints.empty()){
-
-        std::cout << "No nodes registered" << std::endl;
+        cout << "No nodes registered" << endl;
         out_p.set_code(protocol::Packet::ERROR);
       } else {
         // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
-        std::unordered_map<Endpoint, milliseconds>::iterator it;
+        unordered_map<Endpoint, milliseconds>::iterator it;
         for(it = endpoints.begin(); it != endpoints.end(); it++){
           milliseconds now_in_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
 
@@ -125,8 +102,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
         // Make sure that if the sender endpoints was the only one
         // registered the programs does not try to iterate over an empty list
         if(endpoints.empty()){
-
-          std::cout << "No other nodes than sender registered" << std::endl;
+          cout << "No other nodes than sender registered" << endl;
           out_p.set_code(protocol::Packet::ERROR);
         } else {
 
@@ -135,8 +111,13 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
           std::advance(it, rand() % endpoints.size());
           Endpoint random_endpoint = it->first;
 
-          std::cout << "Random endpoint: " << random_endpoint.tostring() << std::endl;
-          out_p.set_data(random_endpoint.tostring());
+          cout << "Random endpoint: " << random_endpoint.tostring() << endl;
+          protocol::Node node;
+          node.set_addr(random_endpoint.get().address().to_string());
+          node.set_port(random_endpoint.get().port());
+          std::string node_string;
+          node.SerializeToString(&node_string);
+          out_p.set_data(node_string);
           out_p.set_code(protocol::Packet::NODE);
         }
 
@@ -148,19 +129,12 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
       }
     }
 
-    //out_p.set_code(protocol::Packet::OK);
-
-    // std::ostringstream stream;
-    // stream << sender_endpoint;
-    // out_p.set_data(stream.str());
-
     std::string data_string;
 
     makeCRC(out_p);
     out_p.SerializeToString(&data_string);
 
     sock.send_to(boost::asio::buffer(data_string.data(), data_string.length()), sender_endpoint);
-    std::cout << "EXIT: " << endpoints.size() << " endpoints" << std::endl;
   }
 }
 
@@ -169,7 +143,7 @@ int main(int argc, char* argv[]){
     boost::asio::io_service io_service;
     nameserver(io_service, 9000);
   } catch (std::exception& e) {
-    std::cerr << "Exception: " << e.what() << "\n";
+    cerr << "Exception: " << e.what() << endl;
   }
 
   return 0;

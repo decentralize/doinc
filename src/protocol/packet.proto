@@ -20,6 +20,11 @@ message Packet {
   optional bytes data = 3;
 }
 
+message Node {
+  required string addr = 1;
+  required int32 port = 2;
+}
+
 message NodeList {
-  repeated string data = 1;
+  repeated Node node = 1;
 }

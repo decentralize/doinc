@@ -1,5 +1,6 @@
 CXX_SOURCES = \
 	src/utils.cc \
+	src/crypto.cc \
 	src/lua_runtime.cc \
 	src/protocol/packet.pb.cc
 OTHER_SOURCES = \

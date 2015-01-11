@@ -35,6 +35,7 @@ void protobuf_AssignDesc_packet_2eproto();
 void protobuf_ShutdownFile_packet_2eproto();
 
 class Packet;
+class Node;
 class NodeList;
 
 enum Packet_FunctionCode {
@@ -200,6 +201,100 @@ class Packet : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class Node : public ::google::protobuf::Message {
+ public:
+  Node();
+  virtual ~Node();
+
+  Node(const Node& from);
+
+  inline Node& operator=(const Node& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Node& default_instance();
+
+  void Swap(Node* other);
+
+  // implements Message ----------------------------------------------
+
+  Node* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Node& from);
+  void MergeFrom(const Node& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string addr = 1;
+  inline bool has_addr() const;
+  inline void clear_addr();
+  static const int kAddrFieldNumber = 1;
+  inline const ::std::string& addr() const;
+  inline void set_addr(const ::std::string& value);
+  inline void set_addr(const char* value);
+  inline void set_addr(const char* value, size_t size);
+  inline ::std::string* mutable_addr();
+  inline ::std::string* release_addr();
+  inline void set_allocated_addr(::std::string* addr);
+
+  // required int32 port = 2;
+  inline bool has_port() const;
+  inline void clear_port();
+  static const int kPortFieldNumber = 2;
+  inline ::google::protobuf::int32 port() const;
+  inline void set_port(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:protocol.Node)
+ private:
+  inline void set_has_addr();
+  inline void clear_has_addr();
+  inline void set_has_port();
+  inline void clear_has_port();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* addr_;
+  ::google::protobuf::int32 port_;
+  friend void  protobuf_AddDesc_packet_2eproto();
+  friend void protobuf_AssignDesc_packet_2eproto();
+  friend void protobuf_ShutdownFile_packet_2eproto();
+
+  void InitAsDefaultInstance();
+  static Node* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class NodeList : public ::google::protobuf::Message {
  public:
   NodeList();
@@ -253,21 +348,17 @@ class NodeList : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated string data = 1;
-  inline int data_size() const;
-  inline void clear_data();
-  static const int kDataFieldNumber = 1;
-  inline const ::std::string& data(int index) const;
-  inline ::std::string* mutable_data(int index);
-  inline void set_data(int index, const ::std::string& value);
-  inline void set_data(int index, const char* value);
-  inline void set_data(int index, const char* value, size_t size);
-  inline ::std::string* add_data();
-  inline void add_data(const ::std::string& value);
-  inline void add_data(const char* value);
-  inline void add_data(const char* value, size_t size);
-  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& data() const;
-  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_data();
+  // repeated .protocol.Node node = 1;
+  inline int node_size() const;
+  inline void clear_node();
+  static const int kNodeFieldNumber = 1;
+  inline const ::protocol::Node& node(int index) const;
+  inline ::protocol::Node* mutable_node(int index);
+  inline ::protocol::Node* add_node();
+  inline const ::google::protobuf::RepeatedPtrField< ::protocol::Node >&
+      node() const;
+  inline ::google::protobuf::RepeatedPtrField< ::protocol::Node >*
+      mutable_node();
 
   // @@protoc_insertion_point(class_scope:protocol.NodeList)
  private:
@@ -276,7 +367,7 @@ class NodeList : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::std::string> data_;
+  ::google::protobuf::RepeatedPtrField< ::protocol::Node > node_;
   friend void  protobuf_AddDesc_packet_2eproto();
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
@@ -418,60 +509,140 @@ inline void Packet::set_allocated_data(::std::string* data) {
 
 // -------------------------------------------------------------------
 
+// Node
+
+// required string addr = 1;
+inline bool Node::has_addr() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Node::set_has_addr() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Node::clear_has_addr() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Node::clear_addr() {
+  if (addr_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    addr_->clear();
+  }
+  clear_has_addr();
+}
+inline const ::std::string& Node::addr() const {
+  // @@protoc_insertion_point(field_get:protocol.Node.addr)
+  return *addr_;
+}
+inline void Node::set_addr(const ::std::string& value) {
+  set_has_addr();
+  if (addr_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    addr_ = new ::std::string;
+  }
+  addr_->assign(value);
+  // @@protoc_insertion_point(field_set:protocol.Node.addr)
+}
+inline void Node::set_addr(const char* value) {
+  set_has_addr();
+  if (addr_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    addr_ = new ::std::string;
+  }
+  addr_->assign(value);
+  // @@protoc_insertion_point(field_set_char:protocol.Node.addr)
+}
+inline void Node::set_addr(const char* value, size_t size) {
+  set_has_addr();
+  if (addr_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    addr_ = new ::std::string;
+  }
+  addr_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:protocol.Node.addr)
+}
+inline ::std::string* Node::mutable_addr() {
+  set_has_addr();
+  if (addr_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    addr_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:protocol.Node.addr)
+  return addr_;
+}
+inline ::std::string* Node::release_addr() {
+  clear_has_addr();
+  if (addr_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = addr_;
+    addr_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Node::set_allocated_addr(::std::string* addr) {
+  if (addr_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete addr_;
+  }
+  if (addr) {
+    set_has_addr();
+    addr_ = addr;
+  } else {
+    clear_has_addr();
+    addr_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:protocol.Node.addr)
+}
+
+// required int32 port = 2;
+inline bool Node::has_port() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Node::set_has_port() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Node::clear_has_port() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Node::clear_port() {
+  port_ = 0;
+  clear_has_port();
+}
+inline ::google::protobuf::int32 Node::port() const {
+  // @@protoc_insertion_point(field_get:protocol.Node.port)
+  return port_;
+}
+inline void Node::set_port(::google::protobuf::int32 value) {
+  set_has_port();
+  port_ = value;
+  // @@protoc_insertion_point(field_set:protocol.Node.port)
+}
+
+// -------------------------------------------------------------------
+
 // NodeList
 
-// repeated string data = 1;
-inline int NodeList::data_size() const {
-  return data_.size();
+// repeated .protocol.Node node = 1;
+inline int NodeList::node_size() const {
+  return node_.size();
 }
-inline void NodeList::clear_data() {
-  data_.Clear();
+inline void NodeList::clear_node() {
+  node_.Clear();
 }
-inline const ::std::string& NodeList::data(int index) const {
-  // @@protoc_insertion_point(field_get:protocol.NodeList.data)
-  return data_.Get(index);
+inline const ::protocol::Node& NodeList::node(int index) const {
+  // @@protoc_insertion_point(field_get:protocol.NodeList.node)
+  return node_.Get(index);
 }
-inline ::std::string* NodeList::mutable_data(int index) {
-  // @@protoc_insertion_point(field_mutable:protocol.NodeList.data)
-  return data_.Mutable(index);
+inline ::protocol::Node* NodeList::mutable_node(int index) {
+  // @@protoc_insertion_point(field_mutable:protocol.NodeList.node)
+  return node_.Mutable(index);
 }
-inline void NodeList::set_data(int index, const ::std::string& value) {
-  // @@protoc_insertion_point(field_set:protocol.NodeList.data)
-  data_.Mutable(index)->assign(value);
+inline ::protocol::Node* NodeList::add_node() {
+  // @@protoc_insertion_point(field_add:protocol.NodeList.node)
+  return node_.Add();
 }
-inline void NodeList::set_data(int index, const char* value) {
-  data_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:protocol.NodeList.data)
+inline const ::google::protobuf::RepeatedPtrField< ::protocol::Node >&
+NodeList::node() const {
+  // @@protoc_insertion_point(field_list:protocol.NodeList.node)
+  return node_;
 }
-inline void NodeList::set_data(int index, const char* value, size_t size) {
-  data_.Mutable(index)->assign(
-    reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:protocol.NodeList.data)
-}
-inline ::std::string* NodeList::add_data() {
-  return data_.Add();
-}
-inline void NodeList::add_data(const ::std::string& value) {
-  data_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:protocol.NodeList.data)
-}
-inline void NodeList::add_data(const char* value) {
-  data_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:protocol.NodeList.data)
-}
-inline void NodeList::add_data(const char* value, size_t size) {
-  data_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:protocol.NodeList.data)
-}
-inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
-NodeList::data() const {
-  // @@protoc_insertion_point(field_list:protocol.NodeList.data)
-  return data_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::std::string>*
-NodeList::mutable_data() {
-  // @@protoc_insertion_point(field_mutable_list:protocol.NodeList.data)
-  return &data_;
+inline ::google::protobuf::RepeatedPtrField< ::protocol::Node >*
+NodeList::mutable_node() {
+  // @@protoc_insertion_point(field_mutable_list:protocol.NodeList.node)
+  return &node_;
 }
 
 
