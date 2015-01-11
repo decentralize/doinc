@@ -37,6 +37,7 @@ void protobuf_ShutdownFile_packet_2eproto();
 class Packet;
 class Node;
 class NodeList;
+class SignedMessage;
 
 enum Packet_FunctionCode {
   Packet_FunctionCode_ERROR = 0,
@@ -47,11 +48,18 @@ enum Packet_FunctionCode {
   Packet_FunctionCode_NODE_LIST = 5,
   Packet_FunctionCode_GET_NODES = 6,
   Packet_FunctionCode_PING = 7,
-  Packet_FunctionCode_PONG = 8
+  Packet_FunctionCode_PONG = 8,
+  Packet_FunctionCode_GET_PUBKEY = 9,
+  Packet_FunctionCode_PUBKEY = 10,
+  Packet_FunctionCode_GET_BLUEPRINT = 11,
+  Packet_FunctionCode_BLUEPRINT = 12,
+  Packet_FunctionCode_GET_WORK = 13,
+  Packet_FunctionCode_WORK = 14,
+  Packet_FunctionCode_PUSH_RESULTS = 15
 };
 bool Packet_FunctionCode_IsValid(int value);
 const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MIN = Packet_FunctionCode_ERROR;
-const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_PONG;
+const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_PUSH_RESULTS;
 const int Packet_FunctionCode_FunctionCode_ARRAYSIZE = Packet_FunctionCode_FunctionCode_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* Packet_FunctionCode_descriptor();
@@ -127,6 +135,13 @@ class Packet : public ::google::protobuf::Message {
   static const FunctionCode GET_NODES = Packet_FunctionCode_GET_NODES;
   static const FunctionCode PING = Packet_FunctionCode_PING;
   static const FunctionCode PONG = Packet_FunctionCode_PONG;
+  static const FunctionCode GET_PUBKEY = Packet_FunctionCode_GET_PUBKEY;
+  static const FunctionCode PUBKEY = Packet_FunctionCode_PUBKEY;
+  static const FunctionCode GET_BLUEPRINT = Packet_FunctionCode_GET_BLUEPRINT;
+  static const FunctionCode BLUEPRINT = Packet_FunctionCode_BLUEPRINT;
+  static const FunctionCode GET_WORK = Packet_FunctionCode_GET_WORK;
+  static const FunctionCode WORK = Packet_FunctionCode_WORK;
+  static const FunctionCode PUSH_RESULTS = Packet_FunctionCode_PUSH_RESULTS;
   static inline bool FunctionCode_IsValid(int value) {
     return Packet_FunctionCode_IsValid(value);
   }
@@ -374,6 +389,105 @@ class NodeList : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static NodeList* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class SignedMessage : public ::google::protobuf::Message {
+ public:
+  SignedMessage();
+  virtual ~SignedMessage();
+
+  SignedMessage(const SignedMessage& from);
+
+  inline SignedMessage& operator=(const SignedMessage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SignedMessage& default_instance();
+
+  void Swap(SignedMessage* other);
+
+  // implements Message ----------------------------------------------
+
+  SignedMessage* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SignedMessage& from);
+  void MergeFrom(const SignedMessage& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required bytes data = 1;
+  inline bool has_data() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 1;
+  inline const ::std::string& data() const;
+  inline void set_data(const ::std::string& value);
+  inline void set_data(const char* value);
+  inline void set_data(const void* value, size_t size);
+  inline ::std::string* mutable_data();
+  inline ::std::string* release_data();
+  inline void set_allocated_data(::std::string* data);
+
+  // required bytes signature = 2;
+  inline bool has_signature() const;
+  inline void clear_signature();
+  static const int kSignatureFieldNumber = 2;
+  inline const ::std::string& signature() const;
+  inline void set_signature(const ::std::string& value);
+  inline void set_signature(const char* value);
+  inline void set_signature(const void* value, size_t size);
+  inline ::std::string* mutable_signature();
+  inline ::std::string* release_signature();
+  inline void set_allocated_signature(::std::string* signature);
+
+  // @@protoc_insertion_point(class_scope:protocol.SignedMessage)
+ private:
+  inline void set_has_data();
+  inline void clear_has_data();
+  inline void set_has_signature();
+  inline void clear_has_signature();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* data_;
+  ::std::string* signature_;
+  friend void  protobuf_AddDesc_packet_2eproto();
+  friend void protobuf_AssignDesc_packet_2eproto();
+  friend void protobuf_ShutdownFile_packet_2eproto();
+
+  void InitAsDefaultInstance();
+  static SignedMessage* default_instance_;
 };
 // ===================================================================
 
@@ -643,6 +757,162 @@ inline ::google::protobuf::RepeatedPtrField< ::protocol::Node >*
 NodeList::mutable_node() {
   // @@protoc_insertion_point(field_mutable_list:protocol.NodeList.node)
   return &node_;
+}
+
+// -------------------------------------------------------------------
+
+// SignedMessage
+
+// required bytes data = 1;
+inline bool SignedMessage::has_data() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SignedMessage::set_has_data() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SignedMessage::clear_has_data() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SignedMessage::clear_data() {
+  if (data_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    data_->clear();
+  }
+  clear_has_data();
+}
+inline const ::std::string& SignedMessage::data() const {
+  // @@protoc_insertion_point(field_get:protocol.SignedMessage.data)
+  return *data_;
+}
+inline void SignedMessage::set_data(const ::std::string& value) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    data_ = new ::std::string;
+  }
+  data_->assign(value);
+  // @@protoc_insertion_point(field_set:protocol.SignedMessage.data)
+}
+inline void SignedMessage::set_data(const char* value) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    data_ = new ::std::string;
+  }
+  data_->assign(value);
+  // @@protoc_insertion_point(field_set_char:protocol.SignedMessage.data)
+}
+inline void SignedMessage::set_data(const void* value, size_t size) {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    data_ = new ::std::string;
+  }
+  data_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:protocol.SignedMessage.data)
+}
+inline ::std::string* SignedMessage::mutable_data() {
+  set_has_data();
+  if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    data_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:protocol.SignedMessage.data)
+  return data_;
+}
+inline ::std::string* SignedMessage::release_data() {
+  clear_has_data();
+  if (data_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = data_;
+    data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void SignedMessage::set_allocated_data(::std::string* data) {
+  if (data_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete data_;
+  }
+  if (data) {
+    set_has_data();
+    data_ = data;
+  } else {
+    clear_has_data();
+    data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:protocol.SignedMessage.data)
+}
+
+// required bytes signature = 2;
+inline bool SignedMessage::has_signature() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SignedMessage::set_has_signature() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SignedMessage::clear_has_signature() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SignedMessage::clear_signature() {
+  if (signature_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    signature_->clear();
+  }
+  clear_has_signature();
+}
+inline const ::std::string& SignedMessage::signature() const {
+  // @@protoc_insertion_point(field_get:protocol.SignedMessage.signature)
+  return *signature_;
+}
+inline void SignedMessage::set_signature(const ::std::string& value) {
+  set_has_signature();
+  if (signature_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    signature_ = new ::std::string;
+  }
+  signature_->assign(value);
+  // @@protoc_insertion_point(field_set:protocol.SignedMessage.signature)
+}
+inline void SignedMessage::set_signature(const char* value) {
+  set_has_signature();
+  if (signature_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    signature_ = new ::std::string;
+  }
+  signature_->assign(value);
+  // @@protoc_insertion_point(field_set_char:protocol.SignedMessage.signature)
+}
+inline void SignedMessage::set_signature(const void* value, size_t size) {
+  set_has_signature();
+  if (signature_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    signature_ = new ::std::string;
+  }
+  signature_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:protocol.SignedMessage.signature)
+}
+inline ::std::string* SignedMessage::mutable_signature() {
+  set_has_signature();
+  if (signature_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    signature_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:protocol.SignedMessage.signature)
+  return signature_;
+}
+inline ::std::string* SignedMessage::release_signature() {
+  clear_has_signature();
+  if (signature_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = signature_;
+    signature_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void SignedMessage::set_allocated_signature(::std::string* signature) {
+  if (signature_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete signature_;
+  }
+  if (signature) {
+    set_has_signature();
+    signature_ = signature;
+  } else {
+    clear_has_signature();
+    signature_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:protocol.SignedMessage.signature)
 }
 
 

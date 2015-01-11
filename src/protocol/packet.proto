@@ -4,15 +4,30 @@ package protocol;
 
 message Packet {
   enum FunctionCode {
+    // Global
     ERROR = 0;
     OK = 1;
+
+    // Name server
     NS_REGISTER = 2;
     NS_REQUEST_NODE = 3;
     NODE = 4;
+
+    // Server-server
     NODE_LIST = 5;
     GET_NODES = 6;
     PING = 7;
     PONG = 8;
+
+    // Client-server
+    GET_PUBKEY = 9;
+    PUBKEY = 10;
+    GET_BLUEPRINT = 11;
+    BLUEPRINT = 12;
+    GET_WORK = 13;
+    WORK = 14;
+    PUSH_RESULTS = 15;
+    // 12, 14 always sent as SignedMessage
   }
 
   required FunctionCode code = 1;
@@ -27,4 +42,9 @@ message Node {
 
 message NodeList {
   repeated Node node = 1;
+}
+
+message SignedMessage {
+  required bytes data = 1;
+  required bytes signature = 2;
 }

@@ -30,6 +30,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* NodeList_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   NodeList_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SignedMessage_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SignedMessage_reflection_ = NULL;
 
 }  // namespace
 
@@ -89,6 +92,22 @@ void protobuf_AssignDesc_packet_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(NodeList));
+  SignedMessage_descriptor_ = file->message_type(3);
+  static const int SignedMessage_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SignedMessage, data_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SignedMessage, signature_),
+  };
+  SignedMessage_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SignedMessage_descriptor_,
+      SignedMessage::default_instance_,
+      SignedMessage_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SignedMessage, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SignedMessage, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SignedMessage));
 }
 
 namespace {
@@ -107,6 +126,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     Node_descriptor_, &Node::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     NodeList_descriptor_, &NodeList::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SignedMessage_descriptor_, &SignedMessage::default_instance());
 }
 
 }  // namespace
@@ -118,6 +139,8 @@ void protobuf_ShutdownFile_packet_2eproto() {
   delete Node_reflection_;
   delete NodeList::default_instance_;
   delete NodeList_reflection_;
+  delete SignedMessage::default_instance_;
+  delete SignedMessage_reflection_;
 }
 
 void protobuf_AddDesc_packet_2eproto() {
@@ -127,22 +150,28 @@ void protobuf_AddDesc_packet_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014packet.proto\022\010protocol\"\326\001\n\006Packet\022+\n\004c"
+    "\n\014packet.proto\022\010protocol\"\276\002\n\006Packet\022+\n\004c"
     "ode\030\001 \002(\0162\035.protocol.Packet.FunctionCode"
-    "\022\013\n\003crc\030\002 \002(\003\022\014\n\004data\030\003 \001(\014\"\203\001\n\014Function"
+    "\022\013\n\003crc\030\002 \002(\003\022\014\n\004data\030\003 \001(\014\"\353\001\n\014Function"
     "Code\022\t\n\005ERROR\020\000\022\006\n\002OK\020\001\022\017\n\013NS_REGISTER\020\002"
     "\022\023\n\017NS_REQUEST_NODE\020\003\022\010\n\004NODE\020\004\022\r\n\tNODE_"
     "LIST\020\005\022\r\n\tGET_NODES\020\006\022\010\n\004PING\020\007\022\010\n\004PONG\020"
-    "\010\"\"\n\004Node\022\014\n\004addr\030\001 \002(\t\022\014\n\004port\030\002 \002(\005\"(\n"
-    "\010NodeList\022\034\n\004node\030\001 \003(\0132\016.protocol.Node", 319);
+    "\010\022\016\n\nGET_PUBKEY\020\t\022\n\n\006PUBKEY\020\n\022\021\n\rGET_BLU"
+    "EPRINT\020\013\022\r\n\tBLUEPRINT\020\014\022\014\n\010GET_WORK\020\r\022\010\n"
+    "\004WORK\020\016\022\020\n\014PUSH_RESULTS\020\017\"\"\n\004Node\022\014\n\004add"
+    "r\030\001 \002(\t\022\014\n\004port\030\002 \002(\005\"(\n\010NodeList\022\034\n\004nod"
+    "e\030\001 \003(\0132\016.protocol.Node\"0\n\rSignedMessage"
+    "\022\014\n\004data\030\001 \002(\014\022\021\n\tsignature\030\002 \002(\014", 473);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "packet.proto", &protobuf_RegisterTypes);
   Packet::default_instance_ = new Packet();
   Node::default_instance_ = new Node();
   NodeList::default_instance_ = new NodeList();
+  SignedMessage::default_instance_ = new SignedMessage();
   Packet::default_instance_->InitAsDefaultInstance();
   Node::default_instance_->InitAsDefaultInstance();
   NodeList::default_instance_->InitAsDefaultInstance();
+  SignedMessage::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_packet_2eproto);
 }
 
@@ -170,6 +199,13 @@ bool Packet_FunctionCode_IsValid(int value) {
     case 6:
     case 7:
     case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
       return true;
     default:
       return false;
@@ -186,6 +222,13 @@ const Packet_FunctionCode Packet::NODE_LIST;
 const Packet_FunctionCode Packet::GET_NODES;
 const Packet_FunctionCode Packet::PING;
 const Packet_FunctionCode Packet::PONG;
+const Packet_FunctionCode Packet::GET_PUBKEY;
+const Packet_FunctionCode Packet::PUBKEY;
+const Packet_FunctionCode Packet::GET_BLUEPRINT;
+const Packet_FunctionCode Packet::BLUEPRINT;
+const Packet_FunctionCode Packet::GET_WORK;
+const Packet_FunctionCode Packet::WORK;
+const Packet_FunctionCode Packet::PUSH_RESULTS;
 const Packet_FunctionCode Packet::FunctionCode_MIN;
 const Packet_FunctionCode Packet::FunctionCode_MAX;
 const int Packet::FunctionCode_ARRAYSIZE;
@@ -1007,6 +1050,287 @@ void NodeList::Swap(NodeList* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = NodeList_descriptor_;
   metadata.reflection = NodeList_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SignedMessage::kDataFieldNumber;
+const int SignedMessage::kSignatureFieldNumber;
+#endif  // !_MSC_VER
+
+SignedMessage::SignedMessage()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:protocol.SignedMessage)
+}
+
+void SignedMessage::InitAsDefaultInstance() {
+}
+
+SignedMessage::SignedMessage(const SignedMessage& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:protocol.SignedMessage)
+}
+
+void SignedMessage::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  signature_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SignedMessage::~SignedMessage() {
+  // @@protoc_insertion_point(destructor:protocol.SignedMessage)
+  SharedDtor();
+}
+
+void SignedMessage::SharedDtor() {
+  if (data_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete data_;
+  }
+  if (signature_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete signature_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void SignedMessage::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SignedMessage::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SignedMessage_descriptor_;
+}
+
+const SignedMessage& SignedMessage::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_packet_2eproto();
+  return *default_instance_;
+}
+
+SignedMessage* SignedMessage::default_instance_ = NULL;
+
+SignedMessage* SignedMessage::New() const {
+  return new SignedMessage;
+}
+
+void SignedMessage::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_data()) {
+      if (data_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        data_->clear();
+      }
+    }
+    if (has_signature()) {
+      if (signature_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        signature_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool SignedMessage::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:protocol.SignedMessage)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required bytes data = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_data()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_signature;
+        break;
+      }
+
+      // required bytes signature = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_signature:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_signature()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:protocol.SignedMessage)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:protocol.SignedMessage)
+  return false;
+#undef DO_
+}
+
+void SignedMessage::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:protocol.SignedMessage)
+  // required bytes data = 1;
+  if (has_data()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+      1, this->data(), output);
+  }
+
+  // required bytes signature = 2;
+  if (has_signature()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+      2, this->signature(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:protocol.SignedMessage)
+}
+
+::google::protobuf::uint8* SignedMessage::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:protocol.SignedMessage)
+  // required bytes data = 1;
+  if (has_data()) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        1, this->data(), target);
+  }
+
+  // required bytes signature = 2;
+  if (has_signature()) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        2, this->signature(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:protocol.SignedMessage)
+  return target;
+}
+
+int SignedMessage::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required bytes data = 1;
+    if (has_data()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->data());
+    }
+
+    // required bytes signature = 2;
+    if (has_signature()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->signature());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SignedMessage::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const SignedMessage* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const SignedMessage*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void SignedMessage::MergeFrom(const SignedMessage& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_data()) {
+      set_data(from.data());
+    }
+    if (from.has_signature()) {
+      set_signature(from.signature());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void SignedMessage::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SignedMessage::CopyFrom(const SignedMessage& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SignedMessage::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+
+  return true;
+}
+
+void SignedMessage::Swap(SignedMessage* other) {
+  if (other != this) {
+    std::swap(data_, other->data_);
+    std::swap(signature_, other->signature_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata SignedMessage::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SignedMessage_descriptor_;
+  metadata.reflection = SignedMessage_reflection_;
   return metadata;
 }
 

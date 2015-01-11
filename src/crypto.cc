@@ -9,14 +9,14 @@ void SaveToFile(const std::string& filename, const BufferedTransformation& bt) {
   file.MessageEnd();
 }
 
-void SavePrivateKey(const std::string& filename, const RSA::PrivateKey& key) {
+void SavePrivateKey(const std::string& filename, const PrivateKey& key) {
   ByteQueue queue;
   key.Save(queue);
 
   SaveToFile(filename, queue);
 }
 
-void SavePublicKey(const std::string& filename, const RSA::PublicKey& key) {
+void SavePublicKey(const std::string& filename, const PublicKey& key) {
   ByteQueue queue;
   key.Save(queue);
 
@@ -30,18 +30,25 @@ void LoadFromFile(const std::string& filename, BufferedTransformation& bt) {
   bt.MessageEnd();
 }
 
-void LoadPrivateKeyFile(const std::string& filename, RSA::PrivateKey& key) {
+void LoadPrivateKeyFile(const std::string& filename, PrivateKey& key) {
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
   key.Load(queue);
 }
 
-void LoadPublicKeyFile(const std::string& filename, RSA::PublicKey& key) {
+void LoadPublicKeyFile(const std::string& filename, PublicKey& key) {
   ByteQueue queue;
 
   LoadFromFile(filename, queue);
   key.Load(queue);
+}
+
+std::string StringifyPublicKey(PublicKey& key) {
+  std::string str;
+  StringSink sink(str);
+  key.Save(sink);
+  return str;
 }
 
 void LoadFromString(const std::string& source, BufferedTransformation& bt) {
@@ -51,26 +58,26 @@ void LoadFromString(const std::string& source, BufferedTransformation& bt) {
   bt.MessageEnd();
 }
 
-void LoadPrivateKey(const std::string& source, RSA::PrivateKey& key) {
+void LoadPrivateKey(const std::string& source, PrivateKey& key) {
   ByteQueue queue;
 
   LoadFromString(source, queue);
   key.Load(queue);
 }
 
-void LoadPublicKey(const std::string& source, RSA::PublicKey& key) {
+void LoadPublicKey(const std::string& source, PublicKey& key) {
   ByteQueue queue;
 
   LoadFromString(source, queue);
   key.Load(queue);
 }
 
-bool Validate(RSA::PrivateKey& key) {
+bool Validate(PrivateKey& key) {
   AutoSeededRandomPool rnd_pool;
   return key.Validate(rnd_pool, 3);
 }
 
-bool Validate(RSA::PublicKey& key) {
+bool Validate(PublicKey& key) {
   AutoSeededRandomPool rnd_pool;
   return key.Validate(rnd_pool, 3);
 }
@@ -98,12 +105,12 @@ std::string HashedKey(RSA::PublicKey pub_key) {
 }
 
 
-SecByteBlock Sign(RSA::PrivateKey& priv_key, std::string message) {
+Signature Sign(RSA::PrivateKey& priv_key, std::string message) {
   AutoSeededRandomPool rnd_pool;
   RSASS<PSS, SHA1>::Signer signer(priv_key);
 
   size_t sig_length = signer.MaxSignatureLength();
-  SecByteBlock signature(sig_length);
+  Signature signature(sig_length);
 
   sig_length = signer.SignMessage(
       rnd_pool,
@@ -115,7 +122,7 @@ SecByteBlock Sign(RSA::PrivateKey& priv_key, std::string message) {
   return signature;
 }
 
-bool Verify(RSA::PublicKey& pub_key, std::string message, SecByteBlock signature) {
+bool Verify(RSA::PublicKey& pub_key, std::string message, Signature signature) {
   RSASS<PSS, SHA1>::Verifier verifier(pub_key);
 
   return verifier.VerifyMessage(

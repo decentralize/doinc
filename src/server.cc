@@ -9,8 +9,12 @@ using std::cerr;
 using std::cin;
 using std::endl;
 
+#include <string>
+using std::string;
+
 #include <fstream>
 using std::ifstream;
+using std::istreambuf_iterator;
 
 #include <unordered_map>
 
@@ -30,59 +34,82 @@ using std::chrono::high_resolution_clock;
 #include "utils.h"
 #include "endpoint.h"
 #include "crypto.h"
+#include "lua_runtime.h"
 
 class server {
 public:
-  server(boost::asio::io_service& io_service)
-    : io_service_(io_service),
-      socket_(io_service, udp::endpoint(udp::v4(), 0)),
-      ns_timer_(io_service),
-      nodes() {
+  server(boost::asio::io_service& io_service,
+    crypto::PrivateKey priv, crypto::PublicKey pub,
+    string server_code, string client_code)
+      : io_service_(io_service),
+        socket_(io_service, udp::endpoint(udp::v4(), 0)),
+        ns_timer_(io_service),
+        nodes(),
+        priv_key(priv),
+        pub_key(pub),
+        supplier(server_code),
+        blueprint(client_code) {
 
-    queue_ns_register();
+    refresh();
   }
 
-  void queue_ns_register() {
-    std::cout << "Registrering with Name Server" << std::endl;
+  void refresh() {
     udp::endpoint ns_endpoint = udp::endpoint(udp::v4(), 9000);
     queue_send_to(createPacket(protocol::Packet::NS_REGISTER), ns_endpoint);
 
-    // DEBUG
     if(nodes.empty()) {
+      cout << "refresh(): no nodes, request from NS" << endl;
       queue_send_to(createPacket(protocol::Packet::NS_REQUEST_NODE), ns_endpoint);
+    } else {
+      // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
+      std::vector<Endpoint> to_remove;
+      for(auto it = nodes.begin(); it != nodes.end(); it++){
+        milliseconds now_in_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
+
+        int elapsed_seconds = (now_in_ms - it->second).count() / 1000;
+        if(elapsed_seconds >= 240){
+          to_remove.push_back(it->first);
+          continue;
+        } else if(elapsed_seconds >= 60) {
+          udp::endpoint to_ping = it->first.get();
+          queue_send_to(createPacket(protocol::Packet::PING), to_ping);
+        }
+      }
+      for(auto it = to_remove.begin(); it != to_remove.end(); it++) {
+        nodes.erase(*it);
+      }
     }
 
-    ns_timer_.expires_from_now(boost::posix_time::seconds(10));
-    ns_timer_.async_wait(boost::bind(&server::queue_ns_register, this));
+    // Do this again some time
+    ns_timer_.expires_from_now(boost::posix_time::seconds(30));
+    ns_timer_.async_wait(boost::bind(&server::refresh, this));
   }
 
   void handle_receive_from(const boost::system::error_code& error, size_t bytes_recvd) {
     if (error || bytes_recvd <= 1) {
-      std::cerr << "Receive error: " << error << std::endl;
-      std::cerr << "Received bytes: " << bytes_recvd << std::endl;
+      cerr << "Receive error: " << error << endl;
+      cerr << "Received bytes: " << bytes_recvd << endl;
       queue_receive_from();
       return;
     }
 
     protocol::Packet in_p;
-    in_p.ParseFromString(std::string(data_, bytes_recvd));
+    in_p.ParseFromString(string(data_, bytes_recvd));
     if(!checkCRC(in_p)) {
-      std::cerr << "CRC check failed on packet from " << sender_endpoint_ << std::endl;
+      cerr << "CRC check failed on packet from " << sender_endpoint_ << endl;
       queue_send_to(createPacket(protocol::Packet::ERROR), sender_endpoint_);
       return;
     }
 
     auto code = in_p.code();
-    std::cout << "Got valid packet: " << code << std::endl;
+    cout << "Got valid packet: " << code << endl;
     if(code == protocol::Packet::ERROR || code == protocol::Packet::OK) {
       // No care ok?
     } else if(code == protocol::Packet::GET_NODES) {
       // TODO: TEST THIS PROPERLY!
-
-
-      std::cout << "Received GET_NODES" << std::endl;
+      cout << "Received GET_NODES" << endl;
       if(nodes.empty()){
-        std::cout << "No known nodes available, sending back empty packet" << std::endl;
+        cout << "No known nodes available, sending back empty packet" << endl;
         queue_send_to(createPacket(protocol::Packet::NODE_LIST), sender_endpoint_);
       } else {
         protocol::NodeList nl;
@@ -90,57 +117,114 @@ public:
         for(auto it = nodes.begin(); it != nodes.end(); it++) {
           std::ostringstream stream;
           udp::endpoint e = it->first.get();
+          if(Endpoint(e) == Endpoint(sender_endpoint_)) {
+            // Be absolutely sure we never send the asking node with the list
+            continue;
+          }
 
           protocol::Node* node = nl.add_node();
           node->set_addr(e.address().to_string());
           node->set_port(e.port());
         }
 
-        std::string data_string;
+        string data_string;
         nl.SerializeToString(&data_string);
 
         queue_send_to(createPacket(protocol::Packet::NODE_LIST, data_string), sender_endpoint_);
       }
 
     } else if(code == protocol::Packet::PING) {
-      std::cout << "Received PING, sending back PONG" << std::endl;
+      cout << "Received PING, sending back PONG" << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
       nodes[Endpoint(sender_endpoint_)] = timestamp;
       queue_send_to(createPacket(protocol::Packet::PONG), sender_endpoint_);
 
     } else if(code == protocol::Packet::PONG) {
-      std::cout << "Received PONG" << std::endl;
+      cout << "Received PONG" << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
       nodes[Endpoint(sender_endpoint_)] = timestamp;
-
     } else if(code == protocol::Packet::NODE) {
-      std::cout << "Received node from nameserver, sending PING" << std::endl;
+      cout << "Received node from nameserver, requesting network dump" << endl;
 
       // Extract relevant ip:port information from received string
       protocol::Node node;
-      std::string node_string = in_p.data();
+      string node_string = in_p.data();
       node.ParseFromString(node_string);
-
-
-      std::cout << "ip:port = " << node.addr() << ":" << node.port() << std::endl;
 
       // Create asio endpoint from extracted ip:port
       boost::asio::ip::address ip;
       ip = boost::asio::ip::address::from_string(node.addr());
       udp::endpoint endp(ip, node.port());
-      queue_send_to(createPacket(protocol::Packet::PING), endp);
+      queue_send_to(createPacket(protocol::Packet::GET_NODES), endp);
+    } else if(code == protocol::Packet::NODE_LIST) {
+      cout << "Received nodes from a fellow server" << endl;
+
+      protocol::NodeList nodelist;
+      string nodes_string = in_p.data();
+      nodelist.ParseFromString(nodes_string);
+
+      auto nodes = nodelist.mutable_node();
+      for(auto it = nodes->begin(); it != nodes->end(); it++) {
+        protocol::Node node = *it;
+        boost::asio::ip::address ip;
+        ip = boost::asio::ip::address::from_string(node.addr());
+        udp::endpoint endp(ip, node.port());
+        queue_send_to(createPacket(protocol::Packet::PING), endp);
+      }
+      queue_send_to(createPacket(protocol::Packet::PING), sender_endpoint_);
+
+    // Client
+    } else if(code == protocol::Packet::GET_PUBKEY) {
+      if(in_p.data() == crypto::HashedKey(pub_key)) {
+        string pk = crypto::StringifyPublicKey(pub_key);
+        queue_send_to(createPacket(protocol::Packet::PUBKEY, pk), sender_endpoint_);
+      } else {
+        queue_send_to(createPacket(protocol::Packet::ERROR, "not_me"), sender_endpoint_);
+      }
+    } else if(code == protocol::Packet::GET_BLUEPRINT) {
+      crypto::Signature sig = crypto::Sign(priv_key, blueprint);
+
+      protocol::SignedMessage msg;
+      msg.set_data(blueprint);
+      msg.set_signature(string((const char*)sig.data(), sig.size()));
+      string msg_str;
+      msg.SerializeToString(&msg_str);
+
+      queue_send_to(createPacket(protocol::Packet::BLUEPRINT, msg_str), sender_endpoint_);
+
+    } else if(code == protocol::Packet::GET_WORK) {
+      if(supplier.IsDone()) {
+        queue_send_to(createPacket(protocol::Packet::ERROR, "no_more_work"), sender_endpoint_);
+      } else {
+        string work = supplier.GetWork();
+        crypto::Signature sig = crypto::Sign(priv_key, work);
+
+        protocol::SignedMessage msg;
+        msg.set_data(blueprint);
+        msg.set_signature(string((const char*)sig.data(), sig.size()));
+        string msg_str;
+        msg.SerializeToString(&msg_str);
+
+        queue_send_to(createPacket(protocol::Packet::WORK, msg_str), sender_endpoint_);
+
+      }
+    } else if(code == protocol::Packet::PUSH_RESULTS) {
+      string res = in_p.data();
+      supplier.AcceptResult(res);
+
+      queue_send_to(createPacket(protocol::Packet::OK), sender_endpoint_);
+
     } else {
-      std::cerr << "Received unknown function code: " << code << std::endl;
+      cerr << "Received unknown function code: " << code << endl;
+      queue_send_to(createPacket(protocol::Packet::ERROR, "bad_packet"), sender_endpoint_);
     }
 
     queue_receive_from();
-    //queue_send_to(boost::asio::buffer(data_, bytes_recvd), sender_endpoint_);
   }
 
   void handle_send_to(const boost::system::error_code& error, size_t bytes_sent) {
     queue_receive_from();
   }
-
 
 
   // == Implementation details, no business logic ==
@@ -154,12 +238,12 @@ public:
   }
 
   void queue_send_to(protocol::Packet p, udp::endpoint ep) {
-    std::string packet_string;
+    string packet_string;
     p.SerializeToString(&packet_string);
     queue_send_to(packet_string, ep);
   }
 
-  void queue_send_to(std::string s, udp::endpoint ep) {
+  void queue_send_to(string s, udp::endpoint ep) {
     queue_send_to(boost::asio::buffer(s.data(), s.length()), ep);
   }
 
@@ -180,78 +264,94 @@ private:
   char data_[max_length];
 
   std::unordered_map<Endpoint, milliseconds> nodes;
+  crypto::PrivateKey priv_key;
+  crypto::PublicKey pub_key;
+  LuaSupplier supplier;
+  string blueprint;
 };
 
 
 
 
 int main(int argc, char* argv[]) {
-  RSA::PrivateKey priv_key;
-  RSA::PublicKey pub_key;
-
-  std::cout << "Pub key hash: " <<
-      crypto::HashedKey(pub_key) << std::endl;
+  crypto::PrivateKey priv_key;
+  crypto::PublicKey pub_key;
 
   // TODO: Change to PEM if you be wanting human readable keys
   {
     ifstream pk_test("pub.key");
     if (!pk_test.good()) {
-      std::cout << "No keypair found (priv.key, pub.key)\n" <<
-        "Generate new keypair? Y/N" << std::endl;
-      std::string input;
+      cout << "No keypair found (priv.key, pub.key)\n" <<
+        "Generate new keypair? Y/N" << endl;
+      string input;
       std::cin >> input;
       if(boost::iequals(input, "Y")){
         crypto::GenerateKeyPair(priv_key, pub_key);
         crypto::SavePrivateKey("priv.key", priv_key);
         crypto::SavePublicKey("pub.key", pub_key);
       } else {
-        std::cout << "Generate an RSA keypair as pub.key and priv.key and re-run" << std::endl;
+        cout << "Generate an RSA keypair as pub.key and priv.key and re-run" << endl;
         return 1;
       }
     } else {
       crypto::LoadPrivateKeyFile("priv.key", priv_key);
       crypto::LoadPublicKeyFile("pub.key", pub_key);
-      std::cout << "Loaded symmetric key pair" << std::endl;
+      cout << "Loaded symmetric key pair" << endl;
     }
   }
 
-  std::cout << "Pub key hash: " <<
-      crypto::HashedKey(pub_key) << std::endl;
-
   if(!crypto::Validate(priv_key)){
-    std::cerr << "Panic: Invalid private key!" << std::endl;
+    cerr << "Panic: Invalid private key!" << endl;
     return 1;
   } else if (!crypto::Validate(pub_key)) {
-    std::cerr << "Panic: Invalid public key!" << std::endl;
+    cerr << "Panic: Invalid public key!" << endl;
     return 1;
   }
 
-  std::cout << "Project Key (give this to workers): " <<
-      crypto::HashedKey(pub_key) << std::endl;
+  cout << "Project Key (give this to workers): " <<
+      crypto::HashedKey(pub_key) << endl;
 
   // TEST: Signing and verification of messages with RSA
-  std::string test_message = "This be test, lol";
+  // string test_message = "This be test, lol";
 
-  SecByteBlock signature = crypto::Sign(priv_key, test_message);
+  // SecByteBlock signature = crypto::Sign(priv_key, test_message);
 
   // Verify
-  bool ok = crypto::Verify(pub_key, test_message, signature);
+  // bool ok = crypto::Verify(pub_key, test_message, signature);
 
-  if(ok){
-    std::cout << "Message successfully verified!" << std::endl;
-  } else {
-    std::cout << "Unable to verify message, beware!" << std::endl;
+  // if(ok){
+  //   cout << "Message successfully verified!" << endl;
+  // } else {
+  //   cout << "Unable to verify message, beware!" << endl;
+  //   return 1;
+  // }
+
+  ifstream server_ifs("server.lua");
+  if(!server_ifs.good()) {
+    cerr << "server.lua does not exist" << endl;
     return 1;
   }
+  string server_code((istreambuf_iterator<char>(server_ifs)), (istreambuf_iterator<char>()));
+
+  ifstream client_ifs("client.lua");
+  if(!client_ifs.good()) {
+    cerr << "client.lua does not exist" << endl;
+    return 1;
+  }
+  string client_code((istreambuf_iterator<char>(client_ifs)), (istreambuf_iterator<char>()));
 
   try {
     boost::asio::io_service io_service;
-    server s(io_service);
+    server s(io_service, priv_key, pub_key, server_code, client_code);
+    cout << "server.lua loaded OK" << endl;
     io_service.run();
+  } catch(const SupplierProgramException &e) {
+    cerr << "Invalid supplier program: " << e.what() << endl;
+    return 1;
   } catch (std::exception& e) {
-    std::cerr << "Exception: " << e.what() << "\n";
+    cerr << "Exception: " << e.what() << "\n";
     return 1;
   }
-  std::cout << "Server done, shutting down..." << std::endl;
+  cout << "Server done, shutting down..." << endl;
   return 0;
 }

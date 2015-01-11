@@ -35,21 +35,31 @@ using CryptoPP::PSS;
 
 namespace crypto {
 
+typedef RSA::PublicKey PublicKey;
+typedef RSA::PrivateKey PrivateKey;
+typedef SecByteBlock Signature;
+
 void SaveToFile(const std::string& filename, const BufferedTransformation& bt);
-void SavePrivateKey(const std::string& filename, const RSA::PrivateKey& key);
-void SavePublicKey(const std::string& filename, const RSA::PublicKey& key);
+void SavePrivateKey(const std::string& filename, const PrivateKey& key);
+void SavePublicKey(const std::string& filename, const PublicKey& key);
 void LoadFromFile(const std::string& filename, BufferedTransformation& bt);
-void LoadPrivateKeyFile(const std::string& filename, RSA::PrivateKey& key);
-void LoadPublicKeyFile(const std::string& filename, RSA::PublicKey& key);
-//void LoadFromString(const std::string& source, BufferedTransformation& bt);
-//void LoadPrivateKey(const std::string& b64encoded, RSA::PrivateKey& key);
-//void LoadPublicKey(const std::string& b64encoded, RSA::PublicKey& key);
-bool Validate(RSA::PrivateKey& key);
-bool Validate(RSA::PublicKey& key);
-void GenerateKeyPair(RSA::PrivateKey& priv_key, RSA::PublicKey& pub_key);
-std::string HashedKey(RSA::PublicKey pub_key);
-SecByteBlock Sign(RSA::PrivateKey& priv_key, std::string message);
-bool Verify(RSA::PublicKey& pub_key, std::string message, SecByteBlock signature);
+void LoadPrivateKeyFile(const std::string& filename, PrivateKey& key);
+void LoadPublicKeyFile(const std::string& filename, PublicKey& key);
+
+std::string StringifyPublicKey(PublicKey& key);
+void LoadFromString(const std::string& source, BufferedTransformation& bt);
+void LoadPrivateKey(const std::string& b64encoded, PrivateKey& key);
+void LoadPublicKey(const std::string& b64encoded, PublicKey& key);
+
+bool Validate(PrivateKey& key);
+bool Validate(PublicKey& key);
+
+void GenerateKeyPair(PrivateKey& priv_key, PublicKey& pub_key);
+
+std::string HashedKey(PublicKey pub_key);
+
+Signature Sign(PrivateKey& priv_key, std::string message);
+bool Verify(PublicKey& pub_key, std::string message, Signature signature);
 
 }
 

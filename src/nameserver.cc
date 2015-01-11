@@ -38,11 +38,9 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
 
     protocol::Packet in_p;
     in_p.ParseFromString(data);
-    cout << "Got packet: " << in_p.code();
-    cout << ", from: " << sender_endpoint << endl;
 
     if(!checkCRC(in_p)) {
-      std::cerr << "CRC mismatch!" << endl;
+      std::cerr << "CRC mismatch from " << sender_endpoint << endl;
       exit(1);
       return;
     }
@@ -58,13 +56,8 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     if(in_p.code() == protocol::Packet::NS_REGISTER){
 
       // Update endpoint/timestamp for particular sender_endpoint
-      cout << "Total nodes: " << endpoints.size() << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
       endpoints[Endpoint(sender_endpoint)] = timestamp;
-
-      cout << "This sender: " << sender_endpoint << endl;
-      cout << "Was updated with this timestamp: " << timestamp.count() << endl;
-      cout << "Total nodes: " << endpoints.size() << endl;
 
       protocol::Node node;
       node.set_addr(sender_endpoint.address().to_string());
@@ -78,17 +71,19 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     // NS_REQUEST_NODE = 3
     } else if (in_p.code() == protocol::Packet::NS_REQUEST_NODE){
       if(endpoints.empty()){
-        cout << "No nodes registered" << endl;
         out_p.set_code(protocol::Packet::ERROR);
       } else {
         // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
-        unordered_map<Endpoint, milliseconds>::iterator it;
-        for(it = endpoints.begin(); it != endpoints.end(); it++){
+        std::vector<Endpoint> to_remove;
+        for(auto it = endpoints.begin(); it != endpoints.end(); it++){
           milliseconds now_in_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
 
-          if((now_in_ms - it->second).count() >= 1800000){
-            endpoints.erase(it->first);
+          if((now_in_ms - it->second).count() >= 10*60*1000){
+            to_remove.push_back(it->first);
           }
+        }
+        for(auto it = to_remove.begin(); it != to_remove.end(); it++) {
+          endpoints.erase(*it);
         }
 
         // If sender exists in nodelist, temporarily remove it so that
@@ -101,17 +96,15 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
 
         // Make sure that if the sender endpoints was the only one
         // registered the programs does not try to iterate over an empty list
-        if(endpoints.empty()){
-          cout << "No other nodes than sender registered" << endl;
+        if(endpoints.empty()) {
           out_p.set_code(protocol::Packet::ERROR);
         } else {
 
           // Choose a random node from the list to send back
-          it = endpoints.begin();
+          auto it = endpoints.begin();
           std::advance(it, rand() % endpoints.size());
           Endpoint random_endpoint = it->first;
 
-          cout << "Random endpoint: " << random_endpoint.tostring() << endl;
           protocol::Node node;
           node.set_addr(random_endpoint.get().address().to_string());
           node.set_port(random_endpoint.get().port());
@@ -135,6 +128,7 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
     out_p.SerializeToString(&data_string);
 
     sock.send_to(boost::asio::buffer(data_string.data(), data_string.length()), sender_endpoint);
+    cout << "Total nodes: " << endpoints.size() << endl;
   }
 }
 
