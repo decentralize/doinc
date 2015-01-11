@@ -204,6 +204,9 @@ int main(int argc, char* argv[]) {
         crypto::GenerateKeyPair(priv_key, pub_key);
         crypto::SavePrivateKey("priv.key", priv_key);
         crypto::SavePublicKey("pub.key", pub_key);
+      } else {
+        std::cout << "Generate an RSA keypair as pub.key and priv.key and re-run" << std::endl;
+        return 1;
       }
     } else {
       crypto::LoadPrivateKeyFile("priv.key", priv_key);
