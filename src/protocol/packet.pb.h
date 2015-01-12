@@ -20,11 +20,9 @@
 #endif
 
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/message.h>
+#include <google/protobuf/message_lite.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
-#include <google/protobuf/generated_enum_reflection.h>
-#include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
 namespace protocol {
@@ -62,19 +60,9 @@ const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MIN = Packet_Function
 const Packet_FunctionCode Packet_FunctionCode_FunctionCode_MAX = Packet_FunctionCode_PUSH_RESULTS;
 const int Packet_FunctionCode_FunctionCode_ARRAYSIZE = Packet_FunctionCode_FunctionCode_MAX + 1;
 
-const ::google::protobuf::EnumDescriptor* Packet_FunctionCode_descriptor();
-inline const ::std::string& Packet_FunctionCode_Name(Packet_FunctionCode value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Packet_FunctionCode_descriptor(), value);
-}
-inline bool Packet_FunctionCode_Parse(
-    const ::std::string& name, Packet_FunctionCode* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Packet_FunctionCode>(
-    Packet_FunctionCode_descriptor(), name, value);
-}
 // ===================================================================
 
-class Packet : public ::google::protobuf::Message {
+class Packet : public ::google::protobuf::MessageLite {
  public:
   Packet();
   virtual ~Packet();
@@ -86,24 +74,32 @@ class Packet : public ::google::protobuf::Message {
     return *this;
   }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+  inline const ::std::string& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+  inline ::std::string* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
-  static const ::google::protobuf::Descriptor* descriptor();
   static const Packet& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const Packet* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
 
   void Swap(Packet* other);
 
   // implements Message ----------------------------------------------
 
   Packet* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
   void CopyFrom(const Packet& from);
   void MergeFrom(const Packet& from);
   void Clear();
@@ -114,14 +110,14 @@ class Packet : public ::google::protobuf::Message {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  void DiscardUnknownFields();
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::google::protobuf::Metadata GetMetadata() const;
+  ::std::string GetTypeName() const;
 
   // nested types ----------------------------------------------------
 
@@ -151,17 +147,6 @@ class Packet : public ::google::protobuf::Message {
     Packet_FunctionCode_FunctionCode_MAX;
   static const int FunctionCode_ARRAYSIZE =
     Packet_FunctionCode_FunctionCode_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  FunctionCode_descriptor() {
-    return Packet_FunctionCode_descriptor();
-  }
-  static inline const ::std::string& FunctionCode_Name(FunctionCode value) {
-    return Packet_FunctionCode_Name(value);
-  }
-  static inline bool FunctionCode_Parse(const ::std::string& name,
-      FunctionCode* value) {
-    return Packet_FunctionCode_Parse(name, value);
-  }
 
   // accessors -------------------------------------------------------
 
@@ -200,14 +185,18 @@ class Packet : public ::google::protobuf::Message {
   inline void set_has_data();
   inline void clear_has_data();
 
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  ::std::string _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::int64 crc_;
   ::std::string* data_;
   int code_;
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_packet_2eproto_impl();
+  #else
   friend void  protobuf_AddDesc_packet_2eproto();
+  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -216,7 +205,7 @@ class Packet : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class Node : public ::google::protobuf::Message {
+class Node : public ::google::protobuf::MessageLite {
  public:
   Node();
   virtual ~Node();
@@ -228,24 +217,32 @@ class Node : public ::google::protobuf::Message {
     return *this;
   }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+  inline const ::std::string& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+  inline ::std::string* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
-  static const ::google::protobuf::Descriptor* descriptor();
   static const Node& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const Node* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
 
   void Swap(Node* other);
 
   // implements Message ----------------------------------------------
 
   Node* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
   void CopyFrom(const Node& from);
   void MergeFrom(const Node& from);
   void Clear();
@@ -256,14 +253,14 @@ class Node : public ::google::protobuf::Message {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  void DiscardUnknownFields();
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::google::protobuf::Metadata GetMetadata() const;
+  ::std::string GetTypeName() const;
 
   // nested types ----------------------------------------------------
 
@@ -295,13 +292,17 @@ class Node : public ::google::protobuf::Message {
   inline void set_has_port();
   inline void clear_has_port();
 
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  ::std::string _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* addr_;
   ::google::protobuf::int32 port_;
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_packet_2eproto_impl();
+  #else
   friend void  protobuf_AddDesc_packet_2eproto();
+  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -310,7 +311,7 @@ class Node : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class NodeList : public ::google::protobuf::Message {
+class NodeList : public ::google::protobuf::MessageLite {
  public:
   NodeList();
   virtual ~NodeList();
@@ -322,24 +323,32 @@ class NodeList : public ::google::protobuf::Message {
     return *this;
   }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+  inline const ::std::string& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+  inline ::std::string* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
-  static const ::google::protobuf::Descriptor* descriptor();
   static const NodeList& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const NodeList* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
 
   void Swap(NodeList* other);
 
   // implements Message ----------------------------------------------
 
   NodeList* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
   void CopyFrom(const NodeList& from);
   void MergeFrom(const NodeList& from);
   void Clear();
@@ -350,14 +359,14 @@ class NodeList : public ::google::protobuf::Message {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  void DiscardUnknownFields();
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::google::protobuf::Metadata GetMetadata() const;
+  ::std::string GetTypeName() const;
 
   // nested types ----------------------------------------------------
 
@@ -378,12 +387,16 @@ class NodeList : public ::google::protobuf::Message {
   // @@protoc_insertion_point(class_scope:protocol.NodeList)
  private:
 
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  ::std::string _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::protocol::Node > node_;
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_packet_2eproto_impl();
+  #else
   friend void  protobuf_AddDesc_packet_2eproto();
+  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -392,7 +405,7 @@ class NodeList : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class SignedMessage : public ::google::protobuf::Message {
+class SignedMessage : public ::google::protobuf::MessageLite {
  public:
   SignedMessage();
   virtual ~SignedMessage();
@@ -404,24 +417,32 @@ class SignedMessage : public ::google::protobuf::Message {
     return *this;
   }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+  inline const ::std::string& unknown_fields() const {
     return _unknown_fields_;
   }
 
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+  inline ::std::string* mutable_unknown_fields() {
     return &_unknown_fields_;
   }
 
-  static const ::google::protobuf::Descriptor* descriptor();
   static const SignedMessage& default_instance();
+
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  // Returns the internal default instance pointer. This function can
+  // return NULL thus should not be used by the user. This is intended
+  // for Protobuf internal code. Please use default_instance() declared
+  // above instead.
+  static inline const SignedMessage* internal_default_instance() {
+    return default_instance_;
+  }
+  #endif
 
   void Swap(SignedMessage* other);
 
   // implements Message ----------------------------------------------
 
   SignedMessage* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from);
   void CopyFrom(const SignedMessage& from);
   void MergeFrom(const SignedMessage& from);
   void Clear();
@@ -432,14 +453,14 @@ class SignedMessage : public ::google::protobuf::Message {
       ::google::protobuf::io::CodedInputStream* input);
   void SerializeWithCachedSizes(
       ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  void DiscardUnknownFields();
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const;
   public:
-  ::google::protobuf::Metadata GetMetadata() const;
+  ::std::string GetTypeName() const;
 
   // nested types ----------------------------------------------------
 
@@ -476,13 +497,17 @@ class SignedMessage : public ::google::protobuf::Message {
   inline void set_has_signature();
   inline void clear_has_signature();
 
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  ::std::string _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* data_;
   ::std::string* signature_;
+  #ifdef GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER
+  friend void  protobuf_AddDesc_packet_2eproto_impl();
+  #else
   friend void  protobuf_AddDesc_packet_2eproto();
+  #endif
   friend void protobuf_AssignDesc_packet_2eproto();
   friend void protobuf_ShutdownFile_packet_2eproto();
 
@@ -919,20 +944,6 @@ inline void SignedMessage::set_allocated_signature(::std::string* signature) {
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
-
-#ifndef SWIG
-namespace google {
-namespace protobuf {
-
-template <> struct is_proto_enum< ::protocol::Packet_FunctionCode> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protocol::Packet_FunctionCode>() {
-  return ::protocol::Packet_FunctionCode_descriptor();
-}
-
-}  // namespace google
-}  // namespace protobuf
-#endif  // SWIG
 
 // @@protoc_insertion_point(global_scope)
 

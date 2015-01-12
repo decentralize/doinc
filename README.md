@@ -1,20 +1,16 @@
-# Distributed Open Infrastructure for Network Computing
+# Decentralized Open Infrastructure for Network Computing (DOINC)
 
-# TODO
-* [x] Sandboxed LuaJIT execution
-* [ ] Flesh out Readme
-* [ ] JSON in the Lua environment
-* [ ] Design protocol
-* [ ] Implement worker client and supplier node
-* [ ] Implement NAT forwarding
-* [ ] Implement CPU, Memory limits
-* [ ] Implement network bootstrapping
+TODO: Short intro
 
-# Get up and running
-Use `./get_dependencies.sh` to download and build LuaJIT and LuaState.
-Then use `make dist/localworker` to build the current prototype.
+# Limitations
 
-Example usage:
-```
-make dist/localworker && dist/localworker examples/fibonacci.lua
-```
+# Build
+Use `./get_dependencies.sh` to download and build LuaJIT, LuaState, ProtoBuf and CryptoPP into lib/.
+Then use `make` to build all the binaries to dist/{nameserver, server, worker, localworker}
+
+# Usage
+TODO: Usage example
+
+# Contributing
+TODO: Talk about github issues for new features and discussions of such
+List a few important

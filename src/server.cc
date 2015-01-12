@@ -95,18 +95,16 @@ public:
 
     protocol::Packet in_p;
     in_p.ParseFromString(string(data_, bytes_recvd));
-    if(!checkCRC(in_p)) {
+    if(!in_p.has_code() || !checkCRC(in_p)) {
       cerr << "CRC check failed on packet from " << sender_endpoint_ << endl;
       queue_send_to(createPacket(protocol::Packet::ERROR), sender_endpoint_);
       return;
     }
 
     auto code = in_p.code();
-    cout << "Got valid packet: " << code << endl;
     if(code == protocol::Packet::ERROR || code == protocol::Packet::OK) {
-      // No care ok?
+      // Do not care
     } else if(code == protocol::Packet::GET_NODES) {
-      // TODO: TEST THIS PROPERLY!
       cout << "Received GET_NODES" << endl;
       if(nodes.empty()){
         cout << "No known nodes available, sending back empty packet" << endl;
@@ -118,7 +116,7 @@ public:
           std::ostringstream stream;
           udp::endpoint e = it->first.get();
           if(Endpoint(e) == Endpoint(sender_endpoint_)) {
-            // Be absolutely sure we never send the asking node with the list
+            // Make absolutely sure we never send the asking node with the list
             continue;
           }
 
