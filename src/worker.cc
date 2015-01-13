@@ -204,6 +204,7 @@ int main(int argc, char** argv) {
           ip = boost::asio::ip::address::from_string(node.addr());
           udp::endpoint endp(ip, node.port());
 
+          cout << "Trying to connect to node: " << endp << endl;
           // Contact that IP for nodes
           c.send_to(createPacket(protocol::Packet::GET_NODES), endp);
           protocol::Packet nodes_resp = c.receive(seconds(10));

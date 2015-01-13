@@ -26,12 +26,12 @@ CXXFLAGS = -g -Os -std=c++11 \
   $(PROTOBUF_CXXFLAGS) $(LUA_CXXFLAGS) $(CRYPTOPP_CXXFLAGS)
 LFLAGS = -static $(BOOST_LFLAGS) $(PROTOBUF_LFLAGS) $(LUA_LFLAGS) $(CRYPTOPP_LFLAGS)
 
-all: dist/server dist/nameserver dist/localworker dist/worker
+all: dist/supplier dist/nameserver dist/localworker dist/worker
 
 dist/nameserver: src/nameserver.cc $(CXX_OBJECTS)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LFLAGS)
 
-dist/server: src/server.cc $(CXX_OBJECTS) $(OTHER_SOURCES)
+dist/supplier: src/supplier.cc $(CXX_OBJECTS) $(OTHER_SOURCES)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LFLAGS)
 
 dist/localworker: src/localworker.cc $(CXX_OBJECTS) $(OTHER_SOURCES)
