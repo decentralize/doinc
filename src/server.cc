@@ -50,6 +50,8 @@ public:
         supplier(server_code),
         blueprint(client_code) {
 
+    cout << "server.lua loaded OK" << endl;
+
     refresh();
   }
 
@@ -58,10 +60,11 @@ public:
     queue_send_to(createPacket(protocol::Packet::NS_REGISTER), ns_endpoint);
 
     if(nodes.empty()) {
-      cout << "refresh(): no nodes, request from NS" << endl;
+      cout << "Network empty - attempting to bootstrap" << endl;
       queue_send_to(createPacket(protocol::Packet::NS_REQUEST_NODE), ns_endpoint);
     } else {
       // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
+      int pre_count = nodes.size();
       std::vector<Endpoint> to_remove;
       for(auto it = nodes.begin(); it != nodes.end(); it++){
         milliseconds now_in_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
@@ -77,6 +80,9 @@ public:
       }
       for(auto it = to_remove.begin(); it != to_remove.end(); it++) {
         nodes.erase(*it);
+      }
+      if(nodes.size() != pre_count) {
+        cout << "Network size: " << nodes.size() << endl;
       }
     }
 
@@ -105,9 +111,7 @@ public:
     if(code == protocol::Packet::ERROR || code == protocol::Packet::OK) {
       // Do not care
     } else if(code == protocol::Packet::GET_NODES) {
-      cout << "Received GET_NODES" << endl;
       if(nodes.empty()){
-        cout << "No known nodes available, sending back empty packet" << endl;
         queue_send_to(createPacket(protocol::Packet::NODE_LIST), sender_endpoint_);
       } else {
         protocol::NodeList nl;
@@ -132,17 +136,23 @@ public:
       }
 
     } else if(code == protocol::Packet::PING) {
-      cout << "Received PING, sending back PONG" << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
+      int pre_count = nodes.size();
       nodes[Endpoint(sender_endpoint_)] = timestamp;
+      if(nodes.size() != pre_count) {
+        cout << "Network size: " << nodes.size() << endl;
+      }
       queue_send_to(createPacket(protocol::Packet::PONG), sender_endpoint_);
 
     } else if(code == protocol::Packet::PONG) {
-      cout << "Received PONG" << endl;
       milliseconds timestamp = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch());
+      int pre_count = nodes.size();
       nodes[Endpoint(sender_endpoint_)] = timestamp;
+      if(nodes.size() != pre_count) {
+        cout << "Network size: " << nodes.size() << endl;
+      }
     } else if(code == protocol::Packet::NODE) {
-      cout << "Received node from nameserver, requesting network dump" << endl;
+      cout << "Bootstrap OK" << endl;
 
       // Extract relevant ip:port information from received string
       protocol::Node node;
@@ -155,7 +165,7 @@ public:
       udp::endpoint endp(ip, node.port());
       queue_send_to(createPacket(protocol::Packet::GET_NODES), endp);
     } else if(code == protocol::Packet::NODE_LIST) {
-      cout << "Received nodes from a fellow server" << endl;
+      cout << "Connected to DOINC network" << endl;
 
       protocol::NodeList nodelist;
       string nodes_string = in_p.data();
@@ -173,12 +183,13 @@ public:
 
     // Client
     } else if(code == protocol::Packet::GET_PUBKEY) {
-      if(in_p.data() == crypto::HashedKey(pub_key)) {
+      if(in_p.data().compare(crypto::HashedKey(pub_key)) == 0) {
         string pk = crypto::StringifyPublicKey(pub_key);
         queue_send_to(createPacket(protocol::Packet::PUBKEY, pk), sender_endpoint_);
       } else {
         queue_send_to(createPacket(protocol::Packet::ERROR, "not_me"), sender_endpoint_);
       }
+
     } else if(code == protocol::Packet::GET_BLUEPRINT) {
       crypto::Signature sig = crypto::Sign(priv_key, blueprint);
 
@@ -198,7 +209,7 @@ public:
         crypto::Signature sig = crypto::Sign(priv_key, work);
 
         protocol::SignedMessage msg;
-        msg.set_data(blueprint);
+        msg.set_data(work);
         msg.set_signature(string((const char*)sig.data(), sig.size()));
         string msg_str;
         msg.SerializeToString(&msg_str);
@@ -221,6 +232,10 @@ public:
   }
 
   void handle_send_to(const boost::system::error_code& error, size_t bytes_sent) {
+    if(supplier.IsDone()) {
+      io_service_.stop();
+      return;
+    }
     queue_receive_from();
   }
 
@@ -258,7 +273,7 @@ private:
   udp::socket socket_;
   udp::endpoint sender_endpoint_;
   boost::asio::deadline_timer ns_timer_;
-  enum { max_length = 1024 };
+  enum { max_length = 64*1024 };
   char data_[max_length];
 
   std::unordered_map<Endpoint, milliseconds> nodes;
@@ -341,7 +356,6 @@ int main(int argc, char* argv[]) {
   try {
     boost::asio::io_service io_service;
     server s(io_service, priv_key, pub_key, server_code, client_code);
-    cout << "server.lua loaded OK" << endl;
     io_service.run();
   } catch(const SupplierProgramException &e) {
     cerr << "Invalid supplier program: " << e.what() << endl;
@@ -350,6 +364,6 @@ int main(int argc, char* argv[]) {
     cerr << "Exception: " << e.what() << "\n";
     return 1;
   }
-  cout << "Server done, shutting down..." << endl;
+  cout << endl << "Server done, shutting down..." << endl;
   return 0;
 }

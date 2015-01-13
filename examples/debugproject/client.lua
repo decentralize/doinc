@@ -24,15 +24,19 @@ function perform_work(w)
   local hscale = s.height / s.width
   local points = {}
 
-  for col=0,s.width-1 do
-    x = 3.0*col/s.width - 2.0
-    y = 3.0*(s.row-1)/s.height*hscale - 1.5*hscale
-    table.insert(points, mandelbrot(x, y, s.max_iter, s.max_diverge))
+  for r=1,s.per_work do
+    points[r] = {}
+    local row = s.row + r - 1
+    for col=0,s.width-1 do
+      x = 3.0*col/s.width - 2.0
+      y = 3.0*(row-1)/s.height*hscale - 1.5*hscale
+      table.insert(points[r], mandelbrot(x, y, s.max_iter, s.max_diverge))
+    end
   end
 
   return json.encode({
     row = s.row,
-    result = points
+    rows = points
   })
 end
 

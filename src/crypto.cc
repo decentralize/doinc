@@ -1,5 +1,8 @@
 #include "crypto.h"
 
+#include <boost/algorithm/string.hpp>
+using boost::algorithm::trim;
+
 namespace crypto {
 
 void SaveToFile(const std::string& filename, const BufferedTransformation& bt) {
@@ -100,6 +103,8 @@ std::string HashedKey(RSA::PublicKey pub_key) {
   std::string thumbprint_string;
   StringSource source(thumbprint, SHA::DIGESTSIZE, true,
       new Base64Encoder(new StringSink(thumbprint_string)));
+
+  trim(thumbprint_string);
 
   return thumbprint_string;
 }

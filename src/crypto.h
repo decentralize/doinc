@@ -48,8 +48,8 @@ void LoadPublicKeyFile(const std::string& filename, PublicKey& key);
 
 std::string StringifyPublicKey(PublicKey& key);
 void LoadFromString(const std::string& source, BufferedTransformation& bt);
-void LoadPrivateKey(const std::string& b64encoded, PrivateKey& key);
-void LoadPublicKey(const std::string& b64encoded, PublicKey& key);
+void LoadPrivateKey(const std::string& str, PrivateKey& key);
+void LoadPublicKey(const std::string& str, PublicKey& key);
 
 bool Validate(PrivateKey& key);
 bool Validate(PublicKey& key);
