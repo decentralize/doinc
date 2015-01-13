@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
         if(nodes_to_search.empty()) {
           cout << "Bootstrapping" << endl;
           c.send_to(createPacket(protocol::Packet::NS_REQUEST_NODE), ns);
-          protocol::Packet node_resp = c.receive(seconds(10));
+          protocol::Packet node_resp = c.receive(seconds(5));
           check(node_resp);
 
           protocol::Node node;
@@ -207,7 +207,7 @@ int main(int argc, char** argv) {
           cout << "Trying to connect to node: " << endp << endl;
           // Contact that IP for nodes
           c.send_to(createPacket(protocol::Packet::GET_NODES), endp);
-          protocol::Packet nodes_resp = c.receive(seconds(10));
+          protocol::Packet nodes_resp = c.receive(seconds(5));
           check(nodes_resp);
 
           cout << "Connected to network" << endl;
@@ -229,7 +229,7 @@ int main(int argc, char** argv) {
             udp::endpoint endp = *it;
             cout << "Trying node " << endp << endl;
             c.send_to(createPacket(protocol::Packet::GET_PUBKEY, pubkey_hash), endp);
-            protocol::Packet resp = c.receive(seconds(10));
+            protocol::Packet resp = c.receive(seconds(5));
             check(resp);
 
             if(resp.code() == protocol::Packet::PUBKEY) {
@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
         if(!sandbox) {
           cout << "Requesting blueprint" << endl;
           c.send_to(createPacket(protocol::Packet::GET_BLUEPRINT), *supplier);
-          protocol::Packet resp = c.receive(seconds(10));
+          protocol::Packet resp = c.receive(seconds(5));
           check(resp);
 
           protocol::SignedMessage msg;
@@ -273,19 +273,19 @@ int main(int argc, char** argv) {
         } else if(result.length() > 0) {
           cout << "Sending back work result" << endl;
           c.send_to(createPacket(protocol::Packet::PUSH_RESULTS, result), *supplier);
-          protocol::Packet resp = c.receive(seconds(10));
+          protocol::Packet resp = c.receive(seconds(5));
           check(resp);
           if(resp.code() == protocol::Packet::OK) {
             result = string();
           } else {
             cerr << "Server did not accept work" << endl;
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
           }
 
         } else {
           cout << "Requesting work" << endl;
           c.send_to(createPacket(protocol::Packet::GET_WORK), *supplier);
-          protocol::Packet resp = c.receive(seconds(10));
+          protocol::Packet resp = c.receive(seconds(5));
           check(resp);
 
           if(resp.code() == protocol::Packet::ERROR) {
@@ -293,7 +293,7 @@ int main(int argc, char** argv) {
             return 1;
           } else if(resp.code() != protocol::Packet::WORK) {
             cerr << "Unexpected packet: " << resp.code() << endl;
-            return 1;
+            continue;
           }
 
           protocol::SignedMessage msg;

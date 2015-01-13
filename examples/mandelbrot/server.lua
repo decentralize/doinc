@@ -23,6 +23,18 @@ function get_work()
       break
     end
   end
+
+  -- Finish up abandoned uncompleted
+  if row == 0 then
+    for r=1,HEIGHT,PER_WORK do
+      if finished_rows[r] == nil then
+        ongoing_rows[r] = nil
+      end
+    end
+
+    return get_work()
+  end
+
   ongoing_rows[row] = true
   local s = {
     height = HEIGHT,
@@ -37,6 +49,9 @@ end
 
 function accept_result(r)
   local s = json.decode(r)
+  if s == nil or finished_rows[s.row] ~= nil then
+    return
+  end
   for r=0,PER_WORK-1 do
     finished_rows[r+s.row] = s.rows[r+1]
     ongoing_rows[r+s.row] = nil
