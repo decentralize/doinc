@@ -133,8 +133,14 @@ void nameserver(boost::asio::io_service& io_service, unsigned short port) {
 }
 
 int main(int argc, char* argv[]){
+  int port = 9000;
+  if(argc > 1) {
+    port = atoi(argv[1]);
+  }
+
   try {
     boost::asio::io_service io_service;
+    cout << "Starting nameserver on port " << port << endl;
     nameserver(io_service, 9000);
   } catch (std::exception& e) {
     cerr << "Exception: " << e.what() << endl;

@@ -40,9 +40,11 @@ class server {
 public:
   server(boost::asio::io_service& io_service,
     crypto::PrivateKey priv, crypto::PublicKey pub,
+    udp::endpoint ns,
     string server_code, string client_code)
       : io_service_(io_service),
         socket_(io_service, udp::endpoint(udp::v4(), 0)),
+        ns_(ns),
         ns_timer_(io_service),
         nodes(),
         priv_key(priv),
@@ -56,12 +58,11 @@ public:
   }
 
   void refresh() {
-    udp::endpoint ns_endpoint = udp::endpoint(udp::v4(), 9000);
-    queue_send_to(createPacket(protocol::Packet::NS_REGISTER), ns_endpoint);
+    queue_send_to(createPacket(protocol::Packet::NS_REGISTER), ns_);
 
     if(nodes.empty()) {
       cout << "Network empty - attempting to bootstrap" << endl;
-      queue_send_to(createPacket(protocol::Packet::NS_REQUEST_NODE), ns_endpoint);
+      queue_send_to(createPacket(protocol::Packet::NS_REQUEST_NODE), ns_);
     } else {
       // Perform cleanup of nodes that have not registered in 30 minutes (1 800 000 milliseconds)
       int pre_count = nodes.size();
@@ -271,6 +272,7 @@ public:
 private:
   boost::asio::io_service& io_service_;
   udp::socket socket_;
+  udp::endpoint ns_;
   udp::endpoint sender_endpoint_;
   boost::asio::deadline_timer ns_timer_;
   enum { max_length = 64*1024 };
@@ -287,6 +289,33 @@ private:
 
 
 int main(int argc, char* argv[]) {
+  if(argc < 2) {
+    cerr << "Usage: " << endl;
+    cerr << "\t" << "server <ip:port>    host project in current ";
+    cerr << "directory in the DOINC network" << endl;
+    cerr << "\t\t" << "<ip:port> is the address to the nameserver ";
+    cerr << "used for finding the network" << endl;
+    return 1;
+  }
+
+  string addr_str(argv[1]);
+  boost::asio::ip::address ip;
+  int port;
+  {
+    std::size_t pos = addr_str.find(":");
+    if(pos == string::npos) {
+      cerr << "Invalid ns address" << endl;
+      return 1;
+    }
+    ip = boost::asio::ip::address::from_string(addr_str.substr(0,pos));
+    port = atoi(addr_str.substr(pos+1).c_str());
+    if(port < 1) {
+      cerr << "Invalid port number" << endl;
+      return 1;
+    }
+  }
+  udp::endpoint ns(ip, port);
+
   crypto::PrivateKey priv_key;
   crypto::PublicKey pub_key;
 
@@ -355,7 +384,7 @@ int main(int argc, char* argv[]) {
 
   try {
     boost::asio::io_service io_service;
-    server s(io_service, priv_key, pub_key, server_code, client_code);
+    server s(io_service, priv_key, pub_key, ns, server_code, client_code);
     io_service.run();
   } catch(const SupplierProgramException &e) {
     cerr << "Invalid supplier program: " << e.what() << endl;
