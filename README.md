@@ -15,7 +15,12 @@ This implementation, while incomplete, acts as a proof of concept for this visio
 * Not fully decentralized - uses a name server for bootstrapping
 * I/O in worker blueprints is restricted to a string input and a string output
 
+# Requirements
+
 # Build
+The project use GNU Make is tested with GCC 4.8.
+Boost must be installed on the system.
+
 Use `./get_dependencies.sh` to download and build LuaJIT, LuaState, ProtoBuf and CryptoPP into lib/.
 Then use `make` to build all the binaries to dist/{nameserver, supplier, worker, localworker}
 
